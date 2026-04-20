@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kolchawwe | Cerveza Artesanal San Fernando</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@300;400;600&display=swap');
+
+        :root {
+            --brand-gold: #b38e44;
+            --brand-cream: #f4e9d5;
+            --brand-dark: #1a1613;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--brand-dark);
+            color: var(--brand-cream);
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(26, 22, 19, 0.85), rgba(26, 22, 19, 0.85)), 
+                        url('https://images.unsplash.com/photo-1571767490048-222875c45e8e?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .label-card {
+            background-color: #110f0d;
+            border: 1px solid #332d28;
+            transition: all 0.4s ease;
+        }
+
+        .label-card:hover {
+            border-color: var(--brand-gold);
+            transform: translateY(-5px);
+        }
+
+        .kolchawwe-title {
+            text-transform: uppercase;
+            font-size: 3.5rem;
+            line-height: 1;
+            color: var(--brand-cream);
+            border-bottom: 2px solid var(--brand-gold);
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo-frame {
+            border: 2px solid var(--brand-gold);
+            padding: 8px;
+            background-color: var(--brand-dark);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25d366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Botón de WhatsApp Flotante -->
+    <a href="https://wa.me/56943409132?text=Hola%20Kolchawwe!%20Me%20gustaría%20hacer%20un%20pedido." class="whatsapp-float" target="_blank" aria-label="Contacto WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Navegación -->
+    <nav class="fixed w-full z-50 bg-[#110f0d] border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold tracking-widest text-brand-gold">
+            KOLCHAWWE
+        </div>
+        <div class="hidden md:flex space-x-8 text-xs font-semibold uppercase tracking-widest">
+            <a href="#inicio" class="hover:text-brand-gold transition">Inicio</a>
+            <a href="#historia" class="hover:text-brand-gold transition">Nuestra Tierra</a>
+            <a href="#cervezas" class="hover:text-brand-gold transition">Variedades</a>
+            <a href="#contacto" class="hover:text-brand-gold transition">Contacto</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header id="inicio" class="hero-section h-screen flex items-center justify-center text-center px-4">
+        <div class="max-w-4xl">
+            <!-- Imagen de la etiqueta: AQUÍ DEBES ASEGURARTE QUE EL NOMBRE SEA IGUAL AL DE TU ARCHIVO -->
+            <div class="logo-frame mb-8 shadow-2xl">
+                <img src="D:\Pagina Kolchawwe\Logo Kolchawwe.png" alt="Etiqueta Kolchawwe San Fernando" class="w-64 md:w-96 rounded-lg" onerror="this.src='https://via.placeholder.com/400x300?text=Sube+tu+imagen+aquí'">
+            </div>
+              <!-- <h1 class="kolchawwe-title block md:inline-block">Kolchawwe</h1>  -->
+            <p class="text-brand-gold tracking-[0.3em] uppercase text-sm md:text-lg mt-2 font-semibold">San Fernando · Chile</p>
+            <p class="mt-6 text-xl italic font-light opacity-90">"Nobleza salvaje embotellada en el corazón del valle"</p>
+        </div>
+    </header>
+
+    <!-- Historia -->
+    <section id="historia" class="py-24 px-6 bg-[#161310]">
+        <div class="container mx-auto max-w-5xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-4xl font-bold mb-6 text-brand-gold">El Origen</h2>
+                    <p class="text-lg leading-relaxed mb-6 opacity-80">
+                        En las tierras de San Fernando, donde el viento corre libre como el corcel de nuestra etiqueta, nace **Kolchawwe**. Una cerveza que rinde homenaje a la fuerza y la tradición del campo chileno.
+                    </p>
+                    <p class="text-lg leading-relaxed opacity-80">
+                        Cada cocción es un proceso lento, respetando los ingredientes nobles y el agua pura de nuestra zona, para entregar una experiencia con carácter indomable.
+                    </p>
+                </div>
+                <div class="relative">
+                    <div class="border-2 border-brand-gold p-4">
+                        <img src="D:\Pagina Kolchawwe\kolchawwe botellas.jpg" alt="Proceso Artesanal" class="grayscale hover:grayscale-0 transition duration-700">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Catálogo -->
+    <section id="cervezas" class="py-24 px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 uppercase tracking-tighter">Nuestras Cepas</h2>
+            <div class="w-20 h-1 bg-brand-gold mx-auto"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 container mx-auto">
+            <!-- Lager -->
+            <div class="label-card p-8 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-2 text-[10px] text-brand-gold font-bold border-l border-b border-brand-gold">EST. 2024</div>
+                <h3 class="text-2xl text-brand-gold mb-2">LAGER</h3>
+                <p class="text-xs uppercase tracking-widest mb-4 opacity-60">Equilibrada & Cítrica</p>
+                <div class="w-full h-px bg-[#332d28] my-4"></div>
+                <p class="text-sm italic opacity-80 mb-6">Inspirada en los amaneceres dorados de Colchagua.</p>
+                <span class="text-brand-gold font-bold tracking-widest">5.2% ALC.</span>
+            </div>
+
+            <!-- British Golden Ale -->
+            <div class="label-card p-8 text-center border-brand-gold scale-105 z-10 shadow-2xl">
+                <div class="absolute top-0 right-0 p-2 text-[10px] text-brand-gold font-bold border-l border-b border-brand-gold font-bold">EDICIÓN LIMITADA</div>
+                <h3 class="text-2xl text-brand-gold mb-2">BRITISH GOLDEN ALE</h3>
+                <p class="text-xs uppercase tracking-widest mb-4 opacity-60">Cuerpo & Aroma</p>
+                <div class="w-full h-px bg-[#332d28] my-4"></div>
+                <p class="text-sm italic opacity-80 mb-6">El color del cobre bajo el sol de San Fernando.</p>
+                <span class="text-brand-gold font-bold tracking-widest">7.5% ALC.</span>
+            </div>
+
+            <!-- Stout -->
+            <div class="label-card p-8 text-center relative">
+                <div class="absolute top-0 right-0 p-2 text-[10px] text-brand-gold font-bold border-l border-b border-brand-gold">EST. 2024</div>
+                <h3 class="text-2xl text-brand-gold mb-2">STOUT</h3>
+                <p class="text-xs uppercase tracking-widest mb-4 opacity-60">Oscura & Robusta</p>
+                <div class="w-full h-px bg-[#332d28] my-4"></div>
+                <p class="text-sm italic opacity-80 mb-6">Notas de café tostado y chocolate amargo de la tierra.</p>
+                <span class="text-brand-gold font-bold tracking-widest">6.0% ALC.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contacto" class="bg-[#0a0908] pt-20 pb-10 border-t border-[#1a1613]">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-brand-gold mb-8 italic uppercase">KOLCHAWWE</h2>
+            <p class="mb-4 tracking-widest uppercase text-xs">San Fernando, Región de O'Higgins, Chile</p>
+            
+            <div class="flex justify-center space-x-6 my-8">
+                <a href="https://wa.me/56943409132" target="_blank" rel="noopener noreferrer" class="text-2xl hover:text-brand-gold transition" title="WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="https://www.instagram.com/kolchawwe/" target="_blank" rel="noopener noreferrer" class="text-2xl hover:text-brand-gold transition" title="Instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://web.facebook.com/people/Kolchawwe/61584739270268/#" target="_blank" rel="noopener noreferrer" class="text-2xl hover:text-brand-gold transition" title="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+                <a href="mailto:kolchawwe@gmail.com" onclick="window.location.href='mailto:kolchawwe@gmail.com'; return false;" class="text-2xl hover:text-brand-gold transition" title="Enviar Correo">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+
+            <div class="max-w-md mx-auto border border-[#332d28] p-6 mb-12">
+                <p class="text-[10px] uppercase tracking-[0.2em] opacity-50">
+                    Beber en exceso es dañino para la salud. Venta prohibida a menores de 18 años. Disfruta la nobleza de Kolchawwe con responsabilidad.
+                </p>
+            </div>
+            
+            <p class="text-[10px] opacity-30 tracking-widest">© 2026 KOLCHAWWE BREWING CO. · ARTESANÍA DE ORIGEN</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mejora de compatibilidad para el enlace de correo
+        document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                window.location.href = this.href;
+            });
+        });
+    </script>
+
+</body>
+</html>
