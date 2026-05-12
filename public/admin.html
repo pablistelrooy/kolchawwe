@@ -3,178 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Kolchawwe | Control de Inventario</title>
+    <title>Admin Kolchawwe | Control Total</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+Pro:wght@400;600&display=swap');
-        
-        body {
-            font-family: 'Source Sans Pro', sans-serif;
-            background-color: #f4f1ea;
-        }
-        h1, h2 {
-            font-family: 'Playfair Display', serif;
-        }
-        .beer-card {
-            transition: all 0.3s ease;
-        }
-        .beer-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
+        body { font-family: 'Source Sans Pro', sans-serif; background-color: #f4f1ea; }
+        h1, h2 { font-family: 'Playfair Display', serif; }
+        .input-field { @apply w-full p-2 border border-amber-200 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white transition-all; }
+        .beer-card { @apply bg-white p-5 rounded-xl shadow-sm border border-amber-100 hover:shadow-md transition-all duration-300; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- Navegación -->
-    <nav class="bg-amber-900 text-white p-4 shadow-md">
+    <nav class="bg-amber-900 text-white p-4 shadow-lg sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-wider text-amber-200">KOLCHAWWE <span class="text-xs font-normal text-white block uppercase">Panel de Administración</span></h1>
-            <div class="flex gap-4">
-                <a href="/" class="text-sm border border-amber-200 px-4 py-2 rounded hover:bg-amber-800 transition">Ver Tienda</a>
-                <button onclick="cargarInventario()" class="text-sm bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded transition font-bold">Refrescar Stock</button>
-            </div>
+            <h1 class="text-2xl font-bold tracking-wider text-amber-200">KOLCHAWWE <span class="text-[10px] font-normal text-white block uppercase tracking-widest">Gestión de Producción</span></h1>
+            <button onclick="cargarInventario()" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg text-xs font-bold uppercase transition">Actualizar Vista</button>
         </div>
     </nav>
 
-    <main class="container mx-auto p-6 max-w-4xl">
+    <main class="container mx-auto p-6 max-w-5xl">
         
-        <!-- Configuración de Acceso -->
-        <section class="bg-white p-6 rounded-lg shadow-sm border border-amber-100 mb-8">
-            <h2 class="text-xl mb-4 text-amber-900 border-b pb-2">Seguridad del Sistema</h2>
-            <div class="flex flex-col md:flex-row gap-4 items-end">
-                <div class="flex-1">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Contraseña de Administrador:</label>
-                    <input type="password" id="adminPass" placeholder="Ingresa tu clave secreta" class="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 outline-none">
-                </div>
-                <div class="text-xs text-gray-500 md:w-1/3 mb-2">
-                    * Esta clave debe coincidir con la variable ADMIN_PASSWORD configurada en Render.
-                </div>
+        <section class="bg-white p-5 rounded-xl shadow-sm mb-8 border-l-4 border-amber-600 flex flex-col md:flex-row gap-6 items-center">
+            <div class="flex-1 w-full">
+                <label class="block text-xs font-bold text-amber-900 mb-1 uppercase">Llave Maestra de Admin:</label>
+                <input type="password" id="adminPass" placeholder="Introduce 1234" class="input-field py-3 text-lg tracking-widest">
+            </div>
+            <div class="hidden md:block bg-amber-50 p-3 rounded-lg border border-amber-100 max-w-xs">
+                <p class="text-[11px] text-amber-800 leading-tight">
+                    <strong>Nota:</strong> Si cambias la clave en Render, recuerda hacer clic en "Save, rebuild and deploy".
+                </p>
             </div>
         </section>
 
-        <!-- Estado de Carga -->
-        <div id="loading" class="hidden text-center py-10">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-900 mx-auto"></div>
-            <p class="mt-4 text-amber-900 italic">Consultando inventario en la base de datos...</p>
+        <div id="loading" class="hidden text-center py-20">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-900 mx-auto"></div>
+            <p class="mt-4 text-amber-900 font-semibold italic">Conectando con el barril...</p>
         </div>
 
-        <!-- Listado Dinámico de Cervezas -->
-        <section id="inventario-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Cargando automáticamente al iniciar -->
+        <section id="inventario-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cargado por JS -->
         </section>
-
+        
     </main>
 
-    <!-- Notificaciones (Toast) -->
-    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-800 text-white px-6 py-3 rounded shadow-lg z-50"></div>
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl z-50 font-semibold border border-white/10"></div>
 
     <script>
-        // Al cargar la página, intentamos traer las cervezas automáticamente
+        const isPreview = window.location.protocol === 'blob:' || window.location.hostname === '';
+        const API_BASE = isPreview ? 'https://kolchawwe-web.onrender.com' : '';
+
         window.onload = cargarInventario;
+
+        async function cargarInventario() {
+            const container = document.getElementById('inventario-container');
+            const loader = document.getElementById('loading');
+            
+            loader.classList.remove('hidden');
+            container.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/cervezas`);
+                const cervezas = await response.json();
+                loader.classList.add('hidden');
+
+                cervezas.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'beer-card flex flex-col gap-4';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center border-b border-amber-50 pb-2">
+                            <span class="text-[10px] bg-amber-900 text-amber-100 px-2 py-0.5 rounded-full font-bold">ID #${c.id}</span>
+                            <div class="w-3 h-3 rounded-full ${c.stock > 0 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'}"></div>
+                        </div>
+                        
+                        <div>
+                            <label class="text-[10px] font-bold text-amber-800 uppercase ml-1">Variedad</label>
+                            <input type="text" id="nombre-${c.id}" value="${c.nombre || ''}" class="input-field font-bold">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-amber-800 uppercase ml-1">Precio ($)</label>
+                                <input type="number" id="precio-${c.id}" value="${c.precio || 0}" class="input-field">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-amber-800 uppercase ml-1">Stock</label>
+                                <input type="number" id="stock-${c.id}" value="${c.stock || 0}" class="input-field">
+                            </div>
+                        </div>
+
+                        <button onclick="guardarCambios(${c.id})" class="mt-2 bg-amber-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all active:scale-95 text-sm">
+                            Guardar Cambios
+                        </button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                loader.classList.add('hidden');
+                showToast("❌ Error al conectar", true);
+            }
+        }
+
+        async function guardarCambios(id) {
+            const pass = document.getElementById('adminPass').value;
+            const nombre = document.getElementById(`nombre-${id}`).value;
+            const precio = document.getElementById(`precio-${id}`).value;
+            const stock = document.getElementById(`stock-${id}`).value;
+
+            if (!pass) {
+                showToast("⚠️ Introduce la contraseña", true);
+                document.getElementById('adminPass').focus();
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/stock`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id, nombre, precio: parseFloat(precio), stock: parseInt(stock), password: pass
+                    })
+                });
+
+                if (response.ok) {
+                    showToast("✅ ¡Datos actualizados!");
+                    cargarInventario();
+                } else {
+                    const error = await response.json();
+                    showToast("❌ " + (error.error || "Error"), true);
+                }
+            } catch (e) {
+                showToast("📡 Error de red", true);
+            }
+        }
 
         function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.style.backgroundColor = isError ? '#991b1b' : '#166534';
             toast.classList.remove('translate-y-20', 'opacity-0');
-            
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        async function cargarInventario() {
-            const container = document.getElementById('inventario-container');
-            const loader = document.getElementById('loading');
-
-            loader.classList.remove('hidden');
-            container.innerHTML = '';
-
-            try {
-                // Como es Full-Stack, usamos la ruta relativa /api/cervezas
-                const response = await fetch('/api/cervezas');
-                if (!response.ok) throw new Error("Error al obtener datos");
-                
-                const cervezas = await response.json();
-                loader.classList.add('hidden');
-                
-                if (cervezas.length === 0) {
-                    container.innerHTML = `<p class="col-span-full text-center py-10 text-gray-500 italic">No hay productos registrados en la base de datos.</p>`;
-                    return;
-                }
-
-                cervezas.forEach(cerveza => {
-                    const card = document.createElement('div');
-                    card.className = 'beer-card bg-white p-5 rounded-lg shadow-sm border border-amber-50 border-l-4 border-l-amber-600';
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="font-bold text-lg text-amber-900">${cerveza.nombre}</h3>
-                                <div class="flex gap-2 items-center mt-1">
-                                    <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded uppercase font-semibold">ID: ${cerveza.id}</span>
-                                    <span class="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded uppercase font-semibold">$${cerveza.precio}</span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <span class="block text-2xl font-bold ${cerveza.stock <= 0 ? 'text-red-600' : (cerveza.stock < 10 ? 'text-orange-500' : 'text-green-700')}">
-                                    ${cerveza.stock}
-                                </span>
-                                <span class="text-[10px] uppercase text-gray-500 font-semibold tracking-tighter">Stock Actual</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="number" id="input-${cerveza.id}" placeholder="Nueva cant." class="flex-1 p-2 border rounded text-sm outline-none focus:border-amber-600 transition">
-                            <button onclick="actualizar(${cerveza.id})" class="bg-amber-900 text-white px-4 py-2 rounded text-sm hover:bg-black transition font-semibold">Actualizar</button>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-
-            } catch (error) {
-                loader.classList.add('hidden');
-                container.innerHTML = `<div class="col-span-full text-center text-red-600 bg-red-50 p-4 rounded border border-red-200">
-                    Error al cargar inventario. Asegúrate de que el servidor en Render esté activo.
-                </div>`;
-            }
-        }
-
-        async function actualizar(id) {
-            const pass = document.getElementById('adminPass').value;
-            const nuevoStock = document.getElementById(`input-${id}`).value;
-
-            if (!pass) {
-                showToast("Debes ingresar la contraseña para validar cambios", true);
-                document.getElementById('adminPass').focus();
-                return;
-            }
-            if (nuevoStock === "" || nuevoStock < 0) return showToast("Ingresa una cantidad válida", true);
-
-            try {
-                // Ruta relativa compatible con tu index.js Full-Stack
-                const response = await fetch('/api/admin/stock', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: id,
-                        nuevo_stock: parseInt(nuevoStock),
-                        password: pass
-                    })
-                });
-
-                const resData = await response.json();
-
-                if (response.ok) {
-                    showToast("✅ Stock de Kolchawwe actualizado");
-                    document.getElementById(`input-${id}`).value = ''; // Limpiar input
-                    cargarInventario(); // Refrescar lista
-                } else {
-                    showToast("❌ " + (resData.error || "Error"), true);
-                }
-
-            } catch (error) {
-                showToast("Error de conexión con el servidor", true);
-            }
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
     </script>
 </body>
