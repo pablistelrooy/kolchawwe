@@ -28,7 +28,7 @@
         }
 
         .hero-section {
-            background: linear-gradient(rgba(26, 22, 19, 0.85), rgba(26, 22, 19, 0.85)), 
+            background: linear-gradient(rgba(26, 22, 19, 0.9), rgba(26, 22, 19, 0.9)), 
                         url('https://images.unsplash.com/photo-1571767490048-222875c45e8e?auto=format&fit=crop&q=80&w=1920');
             background-size: cover;
             background-position: center;
@@ -37,18 +37,19 @@
         .label-card {
             background-color: #110f0d;
             border: 1px solid #332d28;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 350px;
+            min-height: 400px;
         }
 
         .label-card:hover {
             border-color: var(--brand-gold);
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-
+        
         .logo-frame {
             border: 2px solid var(--brand-gold);
             padding: 8px;
@@ -68,45 +69,47 @@
             border-radius: 50px;
             text-align: center;
             font-size: 30px;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            box-shadow: 2px 2px 15px rgba(0,0,0,0.4);
             z-index: 100;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .whatsapp-float:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) rotate(5deg);
         }
 
-        .btn-pay {
+        .btn-order {
             background-color: var(--brand-gold);
             color: black;
-            font-weight: 800;
-            padding: 12px;
+            font-weight: 700;
+            padding: 14px;
             border-radius: 4px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.75rem;
-            transition: all 0.3s;
+            letter-spacing: 2px;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
         }
 
-        .btn-pay:hover {
+        .btn-order:hover {
             background-color: #d4ac5d;
-            box-shadow: 0 0 15px rgba(179, 142, 68, 0.4);
+            letter-spacing: 3px;
         }
 
-        .loader {
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
             border: 3px solid #332d28;
+            border-bottom-color: var(--brand-gold);
             border-radius: 50%;
-            border-top: 3px solid var(--brand-gold);
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
         }
 
-        @keyframes spin {
+        @keyframes rotation {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
@@ -120,42 +123,44 @@
     </a>
 
     <!-- Navegación -->
-    <nav class="fixed w-full z-50 bg-[#110f0d]/95 backdrop-blur-sm border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
-        <div class="text-xl font-bold tracking-widest text-brand-gold">KOLCHAWWE</div>
-        <div class="hidden md:flex space-x-8 text-xs font-semibold uppercase tracking-widest">
+    <nav class="fixed w-full z-50 bg-[#110f0d]/90 backdrop-blur-md border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold tracking-[0.2em] text-brand-gold">KOLCHAWWE</div>
+        <div class="hidden md:flex space-x-8 text-[10px] font-bold uppercase tracking-[0.3em]">
             <a href="#inicio" class="hover:text-brand-gold transition">Inicio</a>
-            <a href="#cervezas" class="hover:text-brand-gold transition">Colección</a>
+            <a href="#bodega" class="hover:text-brand-gold transition">Colección</a>
             <a href="#contacto" class="hover:text-brand-gold transition">Contacto</a>
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Hero -->
     <header id="inicio" class="hero-section min-h-screen flex items-center justify-center text-center px-4 pt-20">
         <div class="max-w-4xl flex flex-col items-center">
             <div class="logo-frame mb-8 shadow-2xl">
-                <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.src='https://via.placeholder.com/400x300?text=Kolchawwe+San+Fernando'">
+                <!-- Imagen local para evitar errores de red externos -->
+                <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none;" class="p-10 brand-font text-3xl text-brand-gold">KOLCHAWWE</div>
             </div>
-            <p class="text-brand-gold tracking-[0.3em] uppercase text-sm md:text-base mt-2 font-semibold">San Fernando · Región de O'Higgins</p>
-            <h1 class="mt-6 text-2xl md:text-3xl italic font-light opacity-90">"Nobleza salvaje embotellada en el corazón del valle"</h1>
+            <p class="text-brand-gold tracking-[0.4em] uppercase text-xs md:text-sm mt-2 font-bold">San Fernando · Valle de Colchagua</p>
+            <h1 class="mt-8 text-2xl md:text-4xl italic font-light opacity-90 leading-relaxed">"Nobleza salvaje embotellada <br>en el corazón del valle"</h1>
         </div>
     </header>
 
-    <!-- Catálogo de Cervezas -->
-    <section id="cervezas" class="py-24 px-6 bg-[#0f0d0b]">
+    <!-- Sección de Bodega Dinámica -->
+    <section id="bodega" class="py-24 px-6 bg-[#0f0d0b]">
         <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold mb-4 uppercase tracking-tighter">Colección de Bodega</h2>
-            <p class="text-xs uppercase tracking-[0.4em] text-brand-gold opacity-60">Disponibilidad en Tiempo Real</p>
-            <div class="w-20 h-px bg-brand-gold mx-auto mt-6"></div>
+            <h2 class="text-3xl md:text-5xl font-bold mb-4 uppercase tracking-tighter">Colección de Bodega</h2>
+            <p class="text-[10px] uppercase tracking-[0.5em] text-brand-gold opacity-50 font-bold">Disponibilidad en Tiempo Real</p>
+            <div class="w-20 h-px bg-brand-gold mx-auto mt-8 opacity-30"></div>
         </div>
 
-        <!-- Estado de Carga -->
-        <div id="loading-catalog" class="flex flex-col items-center py-20">
-            <div class="loader mb-6"></div>
-            <p class="text-[10px] uppercase tracking-widest opacity-40">Conectando con la bodega de San Fernando...</p>
+        <!-- Cargando -->
+        <div id="loading-state" class="flex flex-col items-center py-20">
+            <span class="loader-spinner mb-6"></span>
+            <p class="text-[10px] uppercase tracking-[0.3em] opacity-40">Sincronizando con bodega central...</p>
         </div>
 
-        <!-- Contenedor de Productos -->
-        <div id="catalog-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 container mx-auto hidden">
+        <!-- Contenedor -->
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 container mx-auto hidden">
             <!-- Los productos se inyectan aquí -->
         </div>
     </section>
@@ -165,128 +170,112 @@
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-3xl font-bold text-brand-gold mb-8 italic uppercase">KOLCHAWWE</h2>
             
-            <div class="flex justify-center space-x-8 my-10">
-                <a href="https://wa.me/56943409132" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-110"><i class="fab fa-whatsapp"></i></a>
-                <a href="https://www.instagram.com/kolchawwe/" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-110"><i class="fab fa-instagram"></i></a>
+            <div class="flex justify-center space-x-10 my-12">
+                <a href="https://wa.me/56943409132" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-125"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.instagram.com/kolchawwe/" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-125"><i class="fab fa-instagram"></i></a>
+                <a href="https://web.facebook.com/people/Kolchawwe/61584739270268/" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-125"><i class="fab fa-facebook"></i></a>
             </div>
 
-            <div class="max-w-xl mx-auto border border-[#332d28] p-8 mb-12 bg-[#0f0d0b]">
-                <p class="text-[10px] uppercase tracking-[0.2em] opacity-40 leading-relaxed">
-                    Beber en exceso es dañino para la salud. Venta prohibida a menores de 18 años. <br>Disfruta con responsabilidad la nobleza de nuestra tierra.
+            <div class="max-w-2xl mx-auto border border-[#332d28] p-10 mb-16 bg-[#0f0d0b]">
+                <p class="text-[9px] uppercase tracking-[0.2em] opacity-40 leading-loose">
+                    BEBER EN EXCESO ES DAÑINO PARA LA SALUD. VENTA PROHIBIDA A MENORES DE 18 AÑOS. <br>
+                    PRODUCTO ARTESANAL ELABORADO EN SAN FERNANDO, CHILE.
                 </p>
             </div>
             
-            <p class="text-[9px] opacity-20 tracking-[0.5em] uppercase">© 2026 KOLCHAWWE BREWING CO. · ARTESANÍA DE ORIGEN</p>
+            <p class="text-[9px] opacity-20 tracking-[0.6em] uppercase">© 2026 KOLCHAWWE BREWING CO. · ARTESANÍA DE ORIGEN</p>
         </div>
     </footer>
 
     <script>
-        // Función principal para cargar productos desde la base de datos
-        async function fetchStock() {
-            const loadingEl = document.getElementById('loading-catalog');
-            const containerEl = document.getElementById('catalog-container');
+        // Configuración de API
+        const API_URL = '/api/cervezas';
 
-            // Lista de posibles URLs para intentar la conexión
-            // La primera es relativa (funciona en Render), la segunda es para pruebas locales o previsualización
-            const origins = [
-                window.location.origin,
-                'https://kolchawwe.onrender.com' // Reemplaza con tu URL real de Render si es distinta
-            ];
+        async function loadInventory() {
+            const grid = document.getElementById('products-grid');
+            const loader = document.getElementById('loading-state');
 
-            let data = null;
-            let success = false;
-
-            for (const base of origins) {
-                if (success) break;
-                try {
-                    const apiURL = base + '/api/cervezas';
-                    console.log("Intentando conectar a:", apiURL);
-                    
-                    const response = await fetch(apiURL);
-                    if (response.ok) {
-                        data = await response.json();
-                        success = true;
-                    }
-                } catch (e) {
-                    console.warn(`Fallo intento en origin: ${base}`, e);
-                }
-            }
-
-            if (success && data) {
-                renderCatalog(data);
-            } else {
-                showError();
+            try {
+                // Intentamos cargar desde la API del servidor Render
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) throw new Error('Error al conectar');
+                
+                const cervezas = await response.json();
+                renderCervezas(cervezas);
+            } catch (err) {
+                console.error('Fallo de conexión:', err);
+                // Si falla la API, mostramos un error elegante
+                loader.innerHTML = `
+                    <div class="text-center p-8 border border-red-900/20 bg-red-900/5 rounded">
+                        <p class="text-red-500 text-[10px] uppercase tracking-widest font-bold">Error de Red</p>
+                        <p class="text-[10px] opacity-50 mt-2 uppercase tracking-widest">No se pudo obtener el stock actual.</p>
+                        <button onclick="location.reload()" class="mt-6 text-[10px] text-brand-gold border-b border-brand-gold uppercase tracking-widest font-bold">Reintentar</button>
+                    </div>
+                `;
             }
         }
 
-        function renderCatalog(cervezas) {
-            const loadingEl = document.getElementById('loading-catalog');
-            const containerEl = document.getElementById('catalog-container');
+        function renderCervezas(items) {
+            const grid = document.getElementById('products-grid');
+            const loader = document.getElementById('loading-state');
             
-            loadingEl.classList.add('hidden');
-            containerEl.classList.remove('hidden');
-            containerEl.innerHTML = '';
+            loader.classList.add('hidden');
+            grid.classList.remove('hidden');
+            grid.innerHTML = '';
 
-            if (cervezas.length === 0) {
-                containerEl.innerHTML = "<p class='col-span-full text-center opacity-50 uppercase tracking-widest'>No hay productos registrados en bodega.</p>";
+            if (items.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center opacity-30 uppercase text-[10px] tracking-[0.5em] py-20">Bodega temporalmente vacía</p>`;
                 return;
             }
 
-            cervezas.forEach(item => {
-                const formatPrecio = new Intl.NumberFormat('es-CL', { 
+            items.forEach(beer => {
+                const outOfStock = beer.stock <= 0;
+                const priceFormatted = new Intl.NumberFormat('es-CL', { 
                     style: 'currency', 
                     currency: 'CLP',
                     maximumFractionDigits: 0 
-                }).format(item.precio);
-                
-                const isOutOfStock = item.stock <= 0;
-                
+                }).format(beer.precio);
+
                 const card = document.createElement('div');
-                card.className = `label-card p-10 text-center relative ${isOutOfStock ? 'opacity-40 grayscale' : ''}`;
+                card.className = `label-card p-10 text-center relative ${outOfStock ? 'opacity-30 grayscale' : ''}`;
                 
                 card.innerHTML = `
                     <div>
-                        <div class="absolute top-0 right-0 p-3 text-[9px] font-bold tracking-tighter border-l border-b border-[#332d28] ${isOutOfStock ? 'text-red-500' : 'text-brand-gold'}">
-                            ${isOutOfStock ? 'AGOTADO EN BODEGA' : 'DISPONIBLE'}
+                        <div class="absolute top-0 right-0 p-3 text-[8px] font-bold tracking-widest border-l border-b border-[#332d28] ${outOfStock ? 'text-red-500' : 'text-brand-gold'}">
+                            ${outOfStock ? 'AGOTADO' : 'DISPONIBLE'}
                         </div>
-                        <h3 class="text-2xl text-brand-gold mb-2 uppercase tracking-wide">${item.nombre}</h3>
-                        <p class="text-[10px] uppercase tracking-[0.3em] mb-6 opacity-40">Cepa San Fernando</p>
-                        <div class="w-10 h-px bg-brand-gold/20 mx-auto mb-8"></div>
-                        <p class="text-4xl font-light text-white mb-4">${formatPrecio}</p>
-                        <p class="text-[9px] opacity-30 uppercase tracking-widest mb-10">Stock: ${item.stock} unidades</p>
+                        <h3 class="text-2xl text-brand-gold mb-3 uppercase tracking-wider">${beer.nombre}</h3>
+                        <p class="text-[9px] uppercase tracking-[0.3em] mb-6 opacity-40">Cepa San Fernando</p>
+                        <div class="w-8 h-px bg-brand-gold/30 mx-auto mb-10"></div>
+                        
+                        <div class="mb-8">
+                            <span class="text-4xl font-light text-white">${priceFormatted}</span>
+                        </div>
+                        
+                        <p class="text-[8px] opacity-40 uppercase tracking-[0.4em] mb-4">Stock: ${beer.stock} un.</p>
                     </div>
-                    
-                    <div>
-                        ${isOutOfStock ? 
-                            `<button disabled class="w-full py-4 bg-zinc-900 text-zinc-600 rounded uppercase text-[10px] font-bold tracking-widest border border-zinc-800 cursor-not-allowed">Próximamente</button>` : 
-                            `<button onclick="contactOrder('${item.nombre}', ${item.precio})" class="btn-pay w-full shadow-lg">Reservar Ahora</button>`
+
+                    <div class="mt-8">
+                        ${outOfStock ? 
+                            `<button disabled class="w-full py-4 bg-zinc-900 text-zinc-700 rounded uppercase text-[9px] font-bold tracking-widest cursor-not-allowed">Sin Stock</button>` :
+                            `<button onclick="sendOrder('${beer.nombre}', ${beer.precio})" class="btn-order w-full shadow-lg">Reservar Ahora</button>`
                         }
                     </div>
                 `;
-                containerEl.appendChild(card);
+                grid.appendChild(card);
             });
         }
 
-        function showError() {
-            const loadingEl = document.getElementById('loading-catalog');
-            loadingEl.innerHTML = `
-                <div class="text-center p-6 border border-red-900/30 bg-red-900/10 rounded-lg max-w-xs mx-auto">
-                    <p class="text-red-500 text-[10px] uppercase tracking-widest mb-2 font-bold">Error de Sincronización</p>
-                    <p class="text-[9px] opacity-60 uppercase leading-relaxed">No pudimos conectar con la bodega. Por favor, recarga la página o contáctanos por WhatsApp.</p>
-                    <button onclick="location.reload()" class="mt-4 text-[9px] text-brand-gold border-b border-brand-gold uppercase tracking-widest">Reintentar</button>
-                </div>
-            `;
+        function sendOrder(name, price) {
+            const formattedPrice = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(price);
+            const message = `¡Hola Kolchawwe! 🍻\n\nMe gustaría reservar la variedad: *${name}*\nPrecio: ${formattedPrice}\n\n¿Tienen disponibilidad para entrega en San Fernando?`;
+            const url = `https://wa.me/56943409132?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
         }
 
-        // Función para enviar a WhatsApp con los datos del producto
-        function contactOrder(nombre, precio) {
-            const msg = `¡Hola Kolchawwe! 🍻\n\nMe interesa adquirir la variedad *${nombre}*.\nPrecio publicado: $${precio.toLocaleString('es-CL')}.\n\n¿Tienen disponibilidad para entrega en San Fernando?`;
-            const encoded = encodeURIComponent(msg);
-            window.open(`https://wa.me/56943409132?text=${encoded}`, '_blank');
-        }
-
-        // Iniciar carga al abrir la web
-        document.addEventListener('DOMContentLoaded', fetchStock);
+        // Cargar al iniciar
+        document.addEventListener('DOMContentLoaded', loadInventory);
     </script>
 </body>
 </html>
