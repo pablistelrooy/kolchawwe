@@ -3,282 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kolchawwe | Cerveza Artesanal San Fernando</title>
+    <title>KOLCHAWWE | Cervecería Artesanal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SDK de Mercado Pago -->
-    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@300;400;600&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap');
+        
         :root {
-            --brand-gold: #b38e44;
-            --brand-cream: #f4e9d5;
-            --brand-dark: #1a1613;
+            --mp-blue: #009ee3;
+            --kol-gold: #b38e44;
+            --kol-gold-light: #d4af37;
         }
 
         body {
+            background-color: #0c0c0c;
+            color: #f4e9d5;
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--brand-dark);
-            color: var(--brand-cream);
-            scroll-behavior: smooth;
+            overflow-x: hidden;
         }
 
-        h1, h2, h3, .brand-font {
-            font-family: 'Playfair Display', serif;
-            letter-spacing: 0.05em;
-        }
+        .font-serif { font-family: 'Playfair Display', serif; }
 
-        .hero-section {
-            background: linear-gradient(rgba(26, 22, 19, 0.9), rgba(26, 22, 19, 0.9)), 
-                        url('https://images.unsplash.com/photo-1571767490048-222875c45e8e?auto=format&fit=crop&q=80&w=1920');
-            background-size: cover;
-            background-position: center;
+        /* Estilo de Tarjetas de Producto - Diseño Colección de Bodega */
+        .card-beer {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(179, 142, 68, 0.15);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
         }
-
-        .label-card {
-            background-color: #110f0d;
-            border: 1px solid #332d28;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 420px;
-        }
-
-        .label-card:hover {
-            border-color: var(--brand-gold);
+        .card-beer:hover {
+            border-color: var(--kol-gold);
             transform: translateY(-8px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        
-        .logo-frame {
-            border: 2px solid var(--brand-gold);
-            padding: 8px;
-            background-color: var(--brand-dark);
-            border-radius: 12px;
-            display: inline-block;
+            background: rgba(30, 30, 30, 0.8);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
         }
 
-        .whatsapp-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #25d366;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50px;
-            text-align: center;
-            font-size: 30px;
-            box-shadow: 2px 2px 15px rgba(0,0,0,0.4);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .btn-order {
-            background-color: var(--brand-gold);
-            color: black;
-            font-weight: 700;
-            padding: 14px;
-            border-radius: 4px;
+        .btn-buy {
+            background: var(--kol-gold);
+            color: #000;
+            font-weight: 800;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.75rem;
-            transition: all 0.3s ease;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        .btn-buy:hover:not(:disabled) {
+            background: var(--kol-gold-light);
+            letter-spacing: 0.2em;
         }
 
-        .btn-order:hover {
-            background-color: #d4ac5d;
-            transform: scale(1.02);
+        /* Carrito Lateral */
+        #cart-panel {
+            background: #000000;
+            border-left: 1px solid var(--kol-gold);
+            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 100;
         }
+        .cart-open #cart-panel { transform: translateX(0); }
+        .cart-closed #cart-panel { transform: translateX(100%); }
 
-        .loader-spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid #332d28;
-            border-bottom-color: var(--brand-gold);
+        .gold-glow { text-shadow: 0 0 15px rgba(179, 142, 68, 0.4); }
+
+        .loader {
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top: 2px solid white;
             border-radius: 50%;
-            display: inline-block;
-            animation: rotation 1s linear infinite;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
         }
-
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-btn {
-            opacity: 0.6;
-            cursor: wait;
-            pointer-events: none;
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body class="cart-closed">
 
-    <!-- WhatsApp Flotante -->
-    <a href="https://wa.me/56943409132" class="whatsapp-float" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-    </a>
+    <!-- Configuración del Ambiente (Solo para pruebas) -->
+    <div class="fixed bottom-4 left-4 z-[60] bg-zinc-900/90 p-3 rounded-lg border border-white/10 text-[10px]">
+        <label class="block mb-1 text-zinc-500 uppercase font-bold text-[8px]">URL de tu Render:</label>
+        <input type="text" id="render-url" placeholder="https://kolchawwe-web.onrender.com" 
+               class="bg-black border border-white/20 p-1 rounded text-white outline-none w-48 text-[9px]">
+    </div>
 
-    <!-- Navegación -->
-    <nav class="fixed w-full z-50 bg-[#110f0d]/95 backdrop-blur-md border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
-        <div class="text-xl font-bold tracking-[0.2em] text-brand-gold">KOLCHAWWE</div>
-        <div class="hidden md:flex space-x-8 text-[10px] font-bold uppercase tracking-[0.3em]">
-            <a href="#inicio" class="hover:text-brand-gold transition">Inicio</a>
-            <a href="#bodega" class="hover:text-brand-gold transition">Colección</a>
-            <a href="#contacto" class="hover:text-brand-gold transition">Contacto</a>
-        </div>
+    <!-- Barra de Navegación -->
+    <nav class="fixed w-full top-0 bg-black/95 backdrop-blur-md border-b border-white/5 p-5 flex justify-between items-center z-50">
+        <div class="text-xl font-bold tracking-[0.2em] font-serif italic text-amber-600">KOLCHAWWE</div>
+        <button onclick="toggleCart()" class="relative group p-2">
+            <i class="fa-solid fa-cart-shopping text-xl text-zinc-400 group-hover:text-white transition"></i>
+            <span id="cart-badge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-black">0</span>
+        </button>
     </nav>
 
-    <!-- Hero -->
-    <header id="inicio" class="hero-section min-h-screen flex items-center justify-center text-center px-4 pt-20">
-        <div class="max-w-4xl flex flex-col items-center">
-            <div class="logo-frame mb-8 shadow-2xl">
-                <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.src='https://via.placeholder.com/400x300?text=KOLCHAWWE+BREWING';">
-            </div>
-            <p class="text-brand-gold tracking-[0.4em] uppercase text-xs md:text-sm mt-2 font-bold">San Fernando · Valle de Colchagua</p>
-            <h1 class="mt-8 text-2xl md:text-4xl italic font-light opacity-90 leading-relaxed">"Nobleza salvaje embotellada <br>en el corazón del valle"</h1>
+    <!-- Encabezado Estilo Bodega -->
+    <header class="pt-40 pb-20 px-6 text-center">
+        <div class="mb-6">
+            <span class="text-[10px] tracking-[0.5em] uppercase text-amber-700 font-bold">Nobleza Salvaje</span>
         </div>
+        <h1 class="text-4xl md:text-7xl font-serif italic text-white gold-glow mb-6">Colección de Bodega</h1>
+        <p class="max-w-2xl mx-auto text-zinc-500 text-sm leading-relaxed tracking-wide">
+            Cervezas de autor nacidas en el Valle de Colchagua. Procesos lentos, sabores profundos y el carácter indomable de nuestra tierra.
+        </p>
+        <div class="h-[1px] w-32 bg-amber-900/30 mx-auto mt-12"></div>
     </header>
 
-    <!-- Sección de Bodega -->
-    <section id="bodega" class="py-24 px-6 bg-[#0f0d0b]">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-5xl font-bold mb-4 uppercase tracking-tighter">Colección de Bodega</h2>
-            <p class="text-[10px] uppercase tracking-[0.5em] text-brand-gold opacity-60 font-bold">DISPONIBILIDAD EN TIEMPO REAL</p>
-            <div class="w-20 h-px bg-brand-gold mx-auto mt-8 opacity-30"></div>
-        </div>
-
-        <div id="loading-state" class="flex flex-col items-center py-20">
-            <span class="loader-spinner mb-6"></span>
-            <p class="text-[10px] uppercase tracking-[0.3em] opacity-40">Consultando stock...</p>
-        </div>
-
-        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 container mx-auto hidden">
-            <!-- Renderizado dinámico -->
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer id="contacto" class="bg-[#0a0908] pt-20 pb-10 border-t border-[#1a1613]">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-3xl font-bold text-brand-gold mb-8 italic uppercase">KOLCHAWWE</h2>
-            <div class="flex justify-center space-x-10 my-12">
-                <a href="https://wa.me/56943409132" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-whatsapp"></i></a>
-                <a href="https://www.instagram.com/kolchawwe/" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-instagram"></i></a>
+    <!-- Catálogo de Productos -->
+    <main class="max-w-6xl mx-auto px-6 pb-40">
+        <div id="catalog" class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <!-- Cargando productos dinámicamente -->
+            <div class="col-span-full text-center py-20 text-zinc-700 uppercase tracking-widest text-xs animate-pulse">
+                Abriendo los portones de la bodega...
             </div>
-            <p class="text-[9px] opacity-20 tracking-[0.6em] uppercase">© 2026 KOLCHAWWE BREWING CO.</p>
         </div>
-    </footer>
+    </main>
+
+    <!-- Panel Lateral del Carrito -->
+    <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[450px] translate-x-full flex flex-col shadow-2xl">
+        <div class="p-8 border-b border-zinc-900 flex justify-between items-center">
+            <h2 class="font-serif italic text-2xl text-white">Tu Selección</h2>
+            <button onclick="toggleCart()" class="text-zinc-500 hover:text-white text-3xl transition">&times;</button>
+        </div>
+
+        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6">
+            <!-- Items del carrito -->
+        </div>
+
+        <div class="p-8 bg-zinc-950 border-t border-zinc-900">
+            <div class="flex justify-between items-center mb-8 px-2">
+                <span class="text-xs uppercase tracking-widest text-zinc-500 font-bold">Total Compra</span>
+                <span id="cart-total" class="text-3xl font-serif text-white">$0</span>
+            </div>
+            
+            <button id="pay-btn" onclick="iniciarPago()" 
+                    class="w-full bg-[#009ee3] hover:bg-[#0087c2] text-white py-5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all disabled:opacity-30">
+                <i class="fa-solid fa-credit-card"></i>
+                PAGAR CON MERCADO PAGO
+            </button>
+            <p class="text-[9px] text-zinc-600 text-center mt-4 uppercase tracking-widest">Transacción segura vía Mercado Pago</p>
+        </div>
+    </aside>
 
     <script>
-        // URL del Backend en Render
-        const BASE_URL = 'https://kolchawwe-web.onrender.com';
-        const API_URL = `${BASE_URL}/api/cervezas`;
-        
-        // Carga de Inventario
-        async function loadInventory() {
+        let products = [];
+        let cart = JSON.parse(localStorage.getItem('kolchawwe_v3_cart')) || [];
+
+        async function loadProducts() {
+            const baseUrl = document.getElementById('render-url').value || '';
             try {
-                const response = await fetch(API_URL);
-                const cervezas = await response.json();
-                renderCervezas(cervezas);
+                const res = await fetch(`${baseUrl}/api/cervezas`);
+                products = await res.json();
+                renderCatalog();
+                updateUI();
             } catch (err) {
-                document.getElementById('loading-state').innerHTML = `<p class="text-red-500 uppercase text-[10px] tracking-widest">Error al conectar con la bodega.</p>`;
+                console.error(err);
+                // Si falla el fetch al backend, mostramos locales para previsualizar diseño
+                products = [
+                    {id: 1, nombre: 'Lager', precio: 4500, stock: 10},
+                    {id: 2, nombre: 'Golden Ale', precio: 4800, stock: 5},
+                    {id: 3, nombre: 'Stout', precio: 5000, stock: 0}
+                ];
+                renderCatalog();
             }
         }
 
-        function renderCervezas(items) {
-            const grid = document.getElementById('products-grid');
-            const loader = document.getElementById('loading-state');
-            loader.classList.add('hidden');
-            grid.classList.remove('hidden');
-            grid.innerHTML = '';
-
-            items.forEach(beer => {
-                const outOfStock = beer.stock <= 0;
-                const priceFormatted = new Intl.NumberFormat('es-CL', { 
-                    style: 'currency', currency: 'CLP', maximumFractionDigits: 0 
-                }).format(beer.precio);
-
-                const card = document.createElement('div');
-                card.className = `label-card p-10 text-center relative ${outOfStock ? 'opacity-40 grayscale' : ''}`;
-                
-                card.innerHTML = `
-                    <div>
-                        <div class="absolute top-0 right-0 p-3 text-[8px] font-bold tracking-widest border-l border-b border-[#332d28] ${outOfStock ? 'text-red-500' : 'text-brand-gold'}">
-                            ${outOfStock ? 'SIN STOCK' : 'DISPONIBLE'}
-                        </div>
-                        <h3 class="text-2xl text-brand-gold mb-3 uppercase tracking-wider">${beer.nombre}</h3>
-                        <p class="text-[9px] uppercase tracking-[0.3em] mb-6 opacity-40">Cepa San Fernando</p>
-                        <div class="w-8 h-px bg-brand-gold/30 mx-auto mb-10"></div>
-                        <div class="mb-8">
-                            <span class="text-4xl font-light text-white">${priceFormatted}</span>
-                        </div>
-                        <p class="text-[8px] opacity-40 uppercase tracking-[0.4em] mb-4">Stock Actual: ${beer.stock} unidades</p>
+        function renderCatalog() {
+            const container = document.getElementById('catalog');
+            container.innerHTML = products.map(p => `
+                <div class="card-beer p-10 rounded-2xl text-center">
+                    <div class="absolute top-4 right-6 text-[7px] uppercase tracking-widest text-amber-700 font-black">
+                        ${p.stock > 0 ? 'En Stock' : 'Agotado'}
                     </div>
-                    <div class="mt-8">
-                        ${outOfStock ? 
-                            `<button disabled class="w-full py-4 bg-zinc-900 text-zinc-700 rounded uppercase text-[9px] font-bold tracking-widest">Agotado</button>` :
-                            `<button id="btn-${beer.id}" onclick="iniciarPago(${beer.id}, '${beer.nombre}', ${beer.precio})" class="btn-order w-full">Comprar Ahora</button>`
-                        }
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+                    <h3 class="text-2xl font-serif italic uppercase mb-2 text-white tracking-tighter">${p.nombre}</h3>
+                    <p class="text-[9px] text-zinc-500 uppercase tracking-[0.2em] mb-12">Variedad Artesanal</p>
+                    <div class="text-4xl font-light mb-12 text-white font-serif italic">$${p.precio.toLocaleString('es-CL')}</div>
+                    <button onclick="addToCart(${p.id})" 
+                            class="btn-buy w-full py-4 rounded-xl shadow-lg" 
+                            ${p.stock <= 0 ? 'disabled' : ''}>
+                        ${p.stock > 0 ? 'Añadir al Carro' : 'Sin Stock'}
+                    </button>
+                    <p class="text-[8px] uppercase text-zinc-700 mt-6 tracking-widest">${p.stock} unidades disponibles</p>
+                </div>
+            `).join('');
         }
 
-        // Lógica de Pago con Mercado Pago
-        async function iniciarPago(id, nombre, precio) {
-            const btn = document.getElementById(`btn-${id}`);
-            const originalText = btn.innerText;
-            
-            try {
-                btn.innerText = "PREPARANDO...";
-                btn.classList.add('loading-btn');
+        function toggleCart() { 
+            document.body.classList.toggle('cart-open'); 
+            document.body.classList.toggle('cart-closed'); 
+        }
 
-                // IMPORTANTE: Asegúrate de que el backend tenga esta ruta habilitada
-                const response = await fetch(`${BASE_URL}/api/create-preference`, {
+        function addToCart(id) {
+            const p = products.find(prod => prod.id === id);
+            const inCart = cart.find(item => item.id === id);
+            if(inCart) { 
+                if(inCart.quantity < p.stock) inCart.quantity++; 
+            } else { 
+                cart.push({...p, quantity: 1}); 
+            }
+            updateUI();
+            if(document.body.classList.contains('cart-closed')) toggleCart();
+        }
+
+        function updateQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            const p = products.find(prod => prod.id === id);
+            if(delta > 0 && item.quantity >= p.stock) return;
+            item.quantity += delta;
+            if(item.quantity <= 0) cart = cart.filter(i => i.id !== id);
+            updateUI();
+        }
+
+        function updateUI() {
+            localStorage.setItem('kolchawwe_v3_cart', JSON.stringify(cart));
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const badge = document.getElementById('cart-badge');
+            
+            container.innerHTML = cart.map(i => `
+                <div class="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold uppercase tracking-widest text-amber-600">${i.nombre}</span>
+                        <span class="font-serif text-white">$${(i.precio * i.quantity).toLocaleString('es-CL')}</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center border border-zinc-700 bg-black rounded-lg overflow-hidden">
+                            <button onclick="updateQty(${i.id}, -1)" class="w-10 h-10 flex items-center justify-center hover:bg-zinc-800 transition">-</button>
+                            <span class="w-10 text-center text-xs font-bold text-white">${i.quantity}</span>
+                            <button onclick="updateQty(${i.id}, 1)" class="w-10 h-10 flex items-center justify-center hover:bg-zinc-800 transition">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((acc, i) => acc + (i.precio * i.quantity), 0);
+            totalEl.innerText = `$${total.toLocaleString('es-CL')}`;
+            badge.innerText = cart.reduce((acc, i) => acc + i.quantity, 0);
+            document.getElementById('pay-btn').disabled = cart.length === 0;
+        }
+
+        async function iniciarPago() {
+            const baseUrl = document.getElementById('render-url').value;
+            if(!baseUrl) {
+                alert("Ingresa la URL de tu backend en el cuadro inferior izquierdo para procesar el pago.");
+                return;
+            }
+
+            const btn = document.getElementById('pay-btn');
+            btn.innerHTML = '<div class="loader"></div>';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${baseUrl}/api/create-preference`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: id,
-                        title: `Kolchawwe ${nombre}`,
-                        unit_price: precio,
-                        quantity: 1
+                    body: JSON.stringify({ 
+                        items: cart.map(i => ({ 
+                            title: `Cerveza Kolchawwe ${i.nombre}`, 
+                            unit_price: i.precio, 
+                            quantity: i.quantity 
+                        })) 
                     })
                 });
-
-                if (!response.ok) throw new Error('Error en servidor de pagos');
-
-                const preference = await response.json();
-
-                if (preference.init_point) {
-                    window.location.href = preference.init_point;
+                const data = await res.json();
+                if(data.init_point) {
+                    window.location.href = data.init_point;
                 } else {
-                    throw new Error("Preferencia inválida");
+                    throw new Error();
                 }
-
-            } catch (error) {
-                console.error("Error Mercado Pago:", error);
-                btn.innerText = "ERROR DE CONEXIÓN";
-                btn.style.backgroundColor = "#721c24";
-                btn.style.color = "white";
-                
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.classList.remove('loading-btn');
-                    btn.style.backgroundColor = "";
-                    btn.style.color = "";
-                }, 3000);
+            } catch (e) {
+                alert("Error al conectar con el servidor de pagos en Render.");
+                btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> PAGAR CON MERCADO PAGO';
+                btn.disabled = false;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadInventory);
+        loadProducts();
     </script>
 </body>
 </html>
