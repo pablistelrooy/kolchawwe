@@ -8,122 +8,73 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@200;400;600&display=swap');
-        
-        :root {
-            --gold: #b38e44;
-            --gold-light: #d4af37;
-            --dark: #070707;
-        }
-
-        body {
-            background-color: var(--dark);
-            color: #e5e5e5;
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
-
+        :root { --gold: #b38e44; --dark: #070707; }
+        body { background-color: var(--dark); color: #e5e5e5; font-family: 'Inter', sans-serif; }
         .serif { font-family: 'Cinzel', serif; }
-
-        /* Estilo refinado para las tarjetas */
-        .beer-card {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.7s cubic-bezier(0.15, 1, 0.3, 1);
-        }
-
-        .beer-card:hover {
-            border-color: rgba(179, 142, 68, 0.4);
-            transform: translateY(-8px);
-        }
-
-        .btn-gold-action {
-            background: linear-gradient(135deg, #b38e44 0%, #d4af37 100%);
-            color: #000;
-            font-size: 0.75rem;
-            font-weight: 800;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-
-        .btn-gold-action:hover:not(:disabled) {
-            filter: brightness(1.1);
-            box-shadow: 0 0 20px rgba(179, 142, 68, 0.3);
-        }
-
-        #cart-panel {
-            background: #050505;
-            border-left: 1px solid rgba(179, 142, 68, 0.1);
-            transition: transform 0.5s ease;
-        }
-
+        .beer-card { background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%); border: 1px solid rgba(255,255,255,0.05); transition: all 0.5s ease; }
+        .btn-gold { background: linear-gradient(135deg, #b38e44 0%, #d4af37 100%); color: #000; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; transition: 0.3s; }
+        #cart-panel { background: #050505; border-left: 1px solid rgba(179,142,68,0.1); transition: 0.5s ease; }
         .cart-open #cart-panel { transform: translateX(0); }
         .cart-closed #cart-panel { transform: translateX(100%); }
-
-        .loader-spin {
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255,255,255,0.1);
-            border-top-color: var(--gold);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
+        .loader { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="cart-closed">
 
-    <!-- Notificación Flotante -->
-    <div id="notification" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] pointer-events-none opacity-0 transition-all duration-500">
+    <!-- Notificación -->
+    <div id="notification" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] opacity-0 transition-all duration-500">
         <div class="bg-zinc-900 border border-amber-600/30 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3">
-            <span id="notification-text" class="text-[11px] uppercase tracking-widest font-bold"></span>
+            <span id="notification-text" class="text-[10px] uppercase tracking-widest font-bold"></span>
         </div>
     </div>
 
     <nav class="fixed w-full top-0 bg-black/90 backdrop-blur-md border-b border-white/5 py-4 px-8 flex justify-between items-center z-50">
-        <div class="serif text-lg tracking-[0.2em] text-white">KOLCHAWWE</div>
-        <button onclick="toggleCart()" class="relative text-zinc-400 hover:text-white transition">
+        <div class="serif text-lg tracking-[0.2em]">KOLCHAWWE</div>
+        <button onclick="toggleCart()" class="relative text-zinc-400">
             <i class="fa-solid fa-cart-shopping text-xl"></i>
             <span id="cart-badge" class="absolute -top-2 -right-2 bg-amber-600 text-black text-[10px] font-bold px-1.5 rounded-full">0</span>
         </button>
     </nav>
 
-    <header class="pt-40 pb-20 text-center px-4">
-        <h1 class="serif text-4xl md:text-6xl text-white mb-4 italic">Colección de Bodega</h1>
-        <p class="text-zinc-500 text-xs uppercase tracking-[0.4em]">Nobleza Salvaje del Colchagua</p>
+    <header class="pt-40 pb-20 text-center">
+        <h1 class="serif text-4xl md:text-6xl mb-4 italic">Colección de Bodega</h1>
+        <p class="text-zinc-500 text-[10px] uppercase tracking-[0.4em]">Nobleza Salvaje del Colchagua</p>
     </header>
 
     <main class="max-w-6xl mx-auto px-8 pb-32">
-        <div id="loading-catalog" class="text-center py-20">
-            <div class="loader-spin mx-auto mb-4"></div>
-            <p class="text-[10px] text-zinc-600 uppercase tracking-widest">Sincronizando con bodega...</p>
+        <div id="catalog-status" class="text-center py-10 text-zinc-500 text-xs uppercase tracking-widest">
+            <div class="loader mx-auto mb-4"></div>
+            Sincronizando con el servidor...
         </div>
-        <div id="catalog" class="grid grid-cols-1 md:grid-cols-3 gap-10 opacity-0 transition-opacity duration-1000"></div>
+        <div id="catalog" class="grid grid-cols-1 md:grid-cols-3 gap-10"></div>
     </main>
 
-    <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[450px] z-[100] translate-x-full flex flex-col shadow-2xl">
+    <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[400px] z-[100] translate-x-full flex flex-col">
         <div class="p-8 border-b border-white/5 flex justify-between items-center">
-            <h2 class="serif text-xl text-white italic">Tu Selección</h2>
-            <button onclick="toggleCart()" class="text-zinc-500 hover:text-white text-3xl font-light">&times;</button>
+            <h2 class="serif text-xl italic">Tu Selección</h2>
+            <button onclick="toggleCart()" class="text-zinc-500 text-3xl">&times;</button>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6"></div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-4"></div>
         <div class="p-8 bg-zinc-950 border-t border-white/5">
-            <div class="flex justify-between items-center mb-8">
-                <span class="text-[10px] uppercase text-zinc-500 font-bold tracking-widest">Total</span>
-                <span id="cart-total" class="serif text-2xl text-white font-bold">$0</span>
+            <div class="flex justify-between mb-6">
+                <span class="text-[10px] uppercase text-zinc-500 font-bold">Total</span>
+                <span id="cart-total" class="serif text-2xl font-bold">$0</span>
             </div>
-            <button id="pay-btn" onclick="iniciarPago()" class="btn-gold-action w-full py-5 rounded-lg flex items-center justify-center gap-3 disabled:opacity-20 disabled:grayscale">
+            <button id="pay-btn" onclick="iniciarPago()" class="btn-gold w-full py-4 rounded-lg flex items-center justify-center gap-3 disabled:opacity-30">
                 PAGAR CON MERCADO PAGO
             </button>
-            <p class="text-[9px] text-center text-zinc-600 uppercase mt-4 tracking-tighter">Transacción segura vía Mercado Pago</p>
         </div>
     </aside>
 
     <script>
-        // Lógica de URL dinámica para Render
-        const API_URL = window.location.origin;
+        // Forzamos la URL de producción si detectamos que estamos en Render
+        const API_URL = window.location.hostname.includes('onrender.com') 
+            ? `https://${window.location.hostname}` 
+            : window.location.origin;
+
         let products = [];
-        let cart = JSON.parse(localStorage.getItem('kol_cart_v4')) || [];
+        let cart = JSON.parse(localStorage.getItem('kol_cart_v5')) || [];
 
         function notify(msg) {
             const el = document.getElementById('notification');
@@ -135,88 +86,53 @@
         async function fetchProducts() {
             try {
                 const res = await fetch(`${API_URL}/api/cervezas`);
-                if (!res.ok) throw new Error();
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 products = await res.json();
+                
+                document.getElementById('catalog-status').classList.add('hidden');
                 renderCatalog();
             } catch (e) {
-                console.warn("Usando catálogo de respaldo.");
-                products = [
-                    { id: 1, nombre: 'Lager', precio: 4500, stock: 10, desc: 'Cítrica y Refrescante' },
-                    { id: 2, nombre: 'British Golden Ale', precio: 4800, stock: 12, desc: 'Cuerpo de Malta' },
-                    { id: 3, nombre: 'Stout', precio: 5000, stock: 5, desc: 'Alma de Cacao' }
-                ];
-                renderCatalog();
-            } finally {
-                document.getElementById('loading-catalog').classList.add('hidden');
-                document.getElementById('catalog').classList.replace('opacity-0', 'opacity-100');
-                updateUI();
+                console.error("Error al conectar:", e.message);
+                document.getElementById('catalog-status').innerHTML = `
+                    <p class="text-amber-600 mb-2">El servidor está tardando en despertar...</p>
+                    <p class="text-[9px] text-zinc-600">Reintentando automáticamente</p>
+                `;
+                setTimeout(fetchProducts, 5000); // Reintento cada 5 segundos
             }
         }
 
         function renderCatalog() {
-            const container = document.getElementById('catalog');
-            container.innerHTML = products.map(p => `
+            document.getElementById('catalog').innerHTML = products.map(p => `
                 <div class="beer-card p-10 text-center rounded-2xl">
-                    <span class="text-[8px] uppercase tracking-[0.3em] ${p.stock > 0 ? 'text-amber-600' : 'text-zinc-600'} mb-6 block font-bold">
-                        ${p.stock > 0 ? 'En Stock' : 'Agotado'}
-                    </span>
-                    <h3 class="serif text-2xl text-white mb-2 italic">${p.nombre}</h3>
-                    <p class="text-[10px] text-zinc-600 uppercase tracking-widest mb-8 h-8">${p.desc || 'Edición Limitada'}</p>
+                    <h3 class="serif text-2xl mb-2 italic">${p.nombre}</h3>
                     <div class="serif text-3xl text-zinc-200 mb-8">$${Number(p.precio).toLocaleString('es-CL')}</div>
-                    <button onclick="addToCart(${p.id})" 
-                            ${p.stock <= 0 ? 'disabled' : ''}
-                            class="btn-gold-action w-full py-4 rounded-xl">
-                        ${p.stock > 0 ? 'Añadir al Carro' : 'Sin Stock'}
-                    </button>
+                    <button onclick="addToCart(${p.id})" class="btn-gold w-full py-4 rounded-xl">Añadir al Carro</button>
                 </div>
             `).join('');
+            updateUI();
         }
 
-        function toggleCart() {
-            document.body.classList.toggle('cart-open');
-            document.body.classList.toggle('cart-closed');
+        function toggleCart() { 
+            document.body.classList.toggle('cart-open'); 
+            document.body.classList.toggle('cart-closed'); 
         }
 
         function addToCart(id) {
             const p = products.find(x => x.id === id);
             const inCart = cart.find(x => x.id === id);
-            
-            if (inCart) {
-                if (inCart.quantity < p.stock) inCart.quantity++;
-                else return notify("Stock máximo alcanzado");
-            } else {
-                cart.push({ ...p, quantity: 1 });
-            }
+            if (inCart) inCart.quantity++; else cart.push({ ...p, quantity: 1 });
             updateUI();
             notify("Añadido: " + p.nombre);
         }
 
-        function updateQty(id, delta) {
-            const item = cart.find(x => x.id === id);
-            const p = products.find(x => x.id === id);
-            if (delta > 0 && item.quantity >= p.stock) return;
-            item.quantity += delta;
-            if (item.quantity <= 0) cart = cart.filter(x => x.id !== id);
-            updateUI();
-        }
-
         function updateUI() {
-            localStorage.setItem('kol_cart_v4', JSON.stringify(cart));
-            const itemsContainer = document.getElementById('cart-items');
-            itemsContainer.innerHTML = cart.map(i => `
-                <div class="flex justify-between items-center bg-zinc-900/50 p-4 rounded-xl">
-                    <div>
-                        <p class="text-[10px] font-bold text-amber-500 uppercase tracking-widest">${i.nombre}</p>
-                        <p class="text-xs text-zinc-500 mt-1">$${(i.precio * i.quantity).toLocaleString('es-CL')}</p>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <button onclick="updateQty(${i.id}, -1)" class="text-zinc-600 hover:text-white text-lg">×</button>
-                        <span class="font-mono text-white text-sm">${i.quantity}</span>
-                        <button onclick="updateQty(${i.id}, 1)" class="text-zinc-600 hover:text-white text-lg">+</button>
-                    </div>
+            localStorage.setItem('kol_cart_v5', JSON.stringify(cart));
+            document.getElementById('cart-items').innerHTML = cart.map(i => `
+                <div class="flex justify-between items-center bg-zinc-900/40 p-4 rounded-xl">
+                    <div class="text-xs font-bold text-amber-500 uppercase">${i.nombre} x${i.quantity}</div>
+                    <div class="text-xs">$${(i.precio * i.quantity).toLocaleString('es-CL')}</div>
                 </div>
             `).join('');
-
             const total = cart.reduce((acc, i) => acc + (i.precio * i.quantity), 0);
             document.getElementById('cart-total').innerText = `$${total.toLocaleString('es-CL')}`;
             document.getElementById('cart-badge').innerText = cart.reduce((acc, i) => acc + i.quantity, 0);
@@ -225,35 +141,31 @@
 
         async function iniciarPago() {
             const btn = document.getElementById('pay-btn');
-            const originalText = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<div class="loader-spin mx-auto"></div>';
-            
-            notify("Conectando con Mercado Pago...");
+            btn.innerHTML = '<div class="loader mx-auto"></div>';
+            notify("Generando orden de pago...");
 
             try {
-                // Intento con timeout y reintentos (para el cold start de Render)
                 const response = await fetch(`${API_URL}/api/create-preference`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ items: cart })
                 });
 
-                if (!response.ok) throw new Error("Error en servidor");
-                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.details || "Error del servidor");
+                }
+
                 const data = await response.json();
                 if (data.init_point) {
                     window.location.href = data.init_point;
-                } else {
-                    notify("Error al generar el link de pago");
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
                 }
             } catch (err) {
-                console.error(err);
-                notify("El servidor está despertando. Reintenta en 5 segundos.");
+                console.error("Error en pago:", err);
+                notify("Error: Mercado Pago no responde. Reintenta.");
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'PAGAR CON MERCADO PAGO';
             }
         }
 
