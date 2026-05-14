@@ -43,7 +43,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 400px;
+            min-height: 420px;
         }
 
         .label-card:hover {
@@ -87,13 +87,13 @@
             border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 2px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             transition: all 0.3s ease;
         }
 
         .btn-order:hover {
             background-color: #d4ac5d;
-            letter-spacing: 3px;
+            transform: scale(1.02);
         }
 
         .loader-spinner {
@@ -103,7 +103,6 @@
             border-bottom-color: var(--brand-gold);
             border-radius: 50%;
             display: inline-block;
-            box-sizing: border-box;
             animation: rotation 1s linear infinite;
         }
 
@@ -112,9 +111,8 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Estilo para el botón de Mercado Pago cuando está cargando */
         .loading-btn {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: wait;
             pointer-events: none;
         }
@@ -123,12 +121,12 @@
 <body>
 
     <!-- WhatsApp Flotante -->
-    <a href="https://wa.me/56943409132?text=Hola%20Kolchawwe!%20Tengo%20una%20duda%20sobre%20mi%20compra." class="whatsapp-float" target="_blank">
+    <a href="https://wa.me/56943409132" class="whatsapp-float" target="_blank">
         <i class="fab fa-whatsapp"></i>
     </a>
 
     <!-- Navegación -->
-    <nav class="fixed w-full z-50 bg-[#110f0d]/90 backdrop-blur-md border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
+    <nav class="fixed w-full z-50 bg-[#110f0d]/95 backdrop-blur-md border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
         <div class="text-xl font-bold tracking-[0.2em] text-brand-gold">KOLCHAWWE</div>
         <div class="hidden md:flex space-x-8 text-[10px] font-bold uppercase tracking-[0.3em]">
             <a href="#inicio" class="hover:text-brand-gold transition">Inicio</a>
@@ -141,31 +139,28 @@
     <header id="inicio" class="hero-section min-h-screen flex items-center justify-center text-center px-4 pt-20">
         <div class="max-w-4xl flex flex-col items-center">
             <div class="logo-frame mb-8 shadow-2xl">
-                <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div style="display:none;" class="p-10 brand-font text-3xl text-brand-gold">KOLCHAWWE</div>
+                <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.src='https://via.placeholder.com/400x300?text=KOLCHAWWE+BREWING';">
             </div>
             <p class="text-brand-gold tracking-[0.4em] uppercase text-xs md:text-sm mt-2 font-bold">San Fernando · Valle de Colchagua</p>
             <h1 class="mt-8 text-2xl md:text-4xl italic font-light opacity-90 leading-relaxed">"Nobleza salvaje embotellada <br>en el corazón del valle"</h1>
         </div>
     </header>
 
-    <!-- Sección de Bodega Dinámica -->
+    <!-- Sección de Bodega -->
     <section id="bodega" class="py-24 px-6 bg-[#0f0d0b]">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-5xl font-bold mb-4 uppercase tracking-tighter">Colección de Bodega</h2>
-            <p class="text-[10px] uppercase tracking-[0.5em] text-brand-gold opacity-50 font-bold">Pago Seguro con Mercado Pago</p>
+            <p class="text-[10px] uppercase tracking-[0.5em] text-brand-gold opacity-60 font-bold">DISPONIBILIDAD EN TIEMPO REAL</p>
             <div class="w-20 h-px bg-brand-gold mx-auto mt-8 opacity-30"></div>
         </div>
 
-        <!-- Cargando -->
         <div id="loading-state" class="flex flex-col items-center py-20">
             <span class="loader-spinner mb-6"></span>
             <p class="text-[10px] uppercase tracking-[0.3em] opacity-40">Consultando stock...</p>
         </div>
 
-        <!-- Contenedor -->
         <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 container mx-auto hidden">
-            <!-- Los productos se inyectan aquí -->
+            <!-- Renderizado dinámico -->
         </div>
     </section>
 
@@ -173,61 +168,33 @@
     <footer id="contacto" class="bg-[#0a0908] pt-20 pb-10 border-t border-[#1a1613]">
         <div class="container mx-auto px-6 text-center">
             <h2 class="text-3xl font-bold text-brand-gold mb-8 italic uppercase">KOLCHAWWE</h2>
-            
             <div class="flex justify-center space-x-10 my-12">
-                <a href="https://wa.me/56943409132" target="_blank" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-whatsapp"></i></a>
-                <a href="https://www.instagram.com/kolchawwe/" target="_blank" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-instagram"></i></a>
-                <a href="https://web.facebook.com/people/Kolchawwe/61584739270268/" target="_blank" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-facebook"></i></a>
+                <a href="https://wa.me/56943409132" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.instagram.com/kolchawwe/" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-instagram"></i></a>
             </div>
-
-            <div class="max-w-2xl mx-auto border border-[#332d28] p-10 mb-16 bg-[#0f0d0b]">
-                <p class="text-[9px] uppercase tracking-[0.2em] opacity-40 leading-loose">
-                    BEBER EN EXCESO ES DAÑINO PARA LA SALUD. VENTA PROHIBIDA A MENORES DE 18 AÑOS. <br>
-                    PRODUCTO ARTESANAL ELABORADO EN SAN FERNANDO, CHILE.
-                </p>
-            </div>
-            
-            <p class="text-[9px] opacity-20 tracking-[0.6em] uppercase">© 2026 KOLCHAWWE BREWING CO. · ARTESANÍA DE ORIGEN</p>
+            <p class="text-[9px] opacity-20 tracking-[0.6em] uppercase">© 2026 KOLCHAWWE BREWING CO.</p>
         </div>
     </footer>
 
     <script>
-        // Configuración de Servidor
-        const getBaseUrl = () => {
-            if (window.location.hostname.includes('goog') || window.location.hostname.includes('localhost')) {
-                return 'https://kolchawwe.onrender.com'; 
-            }
-            return ''; 
-        };
-
-        const BASE_URL = getBaseUrl();
+        // URL del Backend en Render
+        const BASE_URL = 'https://kolchawwe-web.onrender.com';
         const API_URL = `${BASE_URL}/api/cervezas`;
         
-        // Inicializar Mercado Pago (Usa tu llave pública aquí)
-        // Por ahora lo dejamos listo para que el backend maneje la creación de la preferencia
-        const mp = new MercadoPago('APP_USR-tu-public-key-aqui', {
-            locale: 'es-CL'
-        });
-
+        // Carga de Inventario
         async function loadInventory() {
-            const grid = document.getElementById('products-grid');
-            const loader = document.getElementById('loading-state');
-
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Error al conectar');
                 const cervezas = await response.json();
                 renderCervezas(cervezas);
             } catch (err) {
-                console.error('Fallo de conexión:', err);
-                loader.innerHTML = `<p class="text-red-500 uppercase text-[10px] tracking-widest">Error de sincronización con bodega.</p>`;
+                document.getElementById('loading-state').innerHTML = `<p class="text-red-500 uppercase text-[10px] tracking-widest">Error al conectar con la bodega.</p>`;
             }
         }
 
         function renderCervezas(items) {
             const grid = document.getElementById('products-grid');
             const loader = document.getElementById('loading-state');
-            
             loader.classList.add('hidden');
             grid.classList.remove('hidden');
             grid.innerHTML = '';
@@ -239,12 +206,12 @@
                 }).format(beer.precio);
 
                 const card = document.createElement('div');
-                card.className = `label-card p-10 text-center relative ${outOfStock ? 'opacity-30 grayscale' : ''}`;
+                card.className = `label-card p-10 text-center relative ${outOfStock ? 'opacity-40 grayscale' : ''}`;
                 
                 card.innerHTML = `
                     <div>
                         <div class="absolute top-0 right-0 p-3 text-[8px] font-bold tracking-widest border-l border-b border-[#332d28] ${outOfStock ? 'text-red-500' : 'text-brand-gold'}">
-                            ${outOfStock ? 'AGOTADO' : 'DISPONIBLE'}
+                            ${outOfStock ? 'SIN STOCK' : 'DISPONIBLE'}
                         </div>
                         <h3 class="text-2xl text-brand-gold mb-3 uppercase tracking-wider">${beer.nombre}</h3>
                         <p class="text-[9px] uppercase tracking-[0.3em] mb-6 opacity-40">Cepa San Fernando</p>
@@ -252,13 +219,12 @@
                         <div class="mb-8">
                             <span class="text-4xl font-light text-white">${priceFormatted}</span>
                         </div>
-                        <p class="text-[8px] opacity-40 uppercase tracking-[0.4em] mb-4">Stock: ${beer.stock} un.</p>
+                        <p class="text-[8px] opacity-40 uppercase tracking-[0.4em] mb-4">Stock Actual: ${beer.stock} unidades</p>
                     </div>
-
                     <div class="mt-8">
                         ${outOfStock ? 
-                            `<button disabled class="w-full py-4 bg-zinc-900 text-zinc-700 rounded uppercase text-[9px] font-bold tracking-widest cursor-not-allowed">Sin Stock</button>` :
-                            `<button id="btn-${beer.id}" onclick="iniciarPago(${beer.id}, '${beer.nombre}', ${beer.precio})" class="btn-order w-full shadow-lg">Comprar Ahora</button>`
+                            `<button disabled class="w-full py-4 bg-zinc-900 text-zinc-700 rounded uppercase text-[9px] font-bold tracking-widest">Agotado</button>` :
+                            `<button id="btn-${beer.id}" onclick="iniciarPago(${beer.id}, '${beer.nombre}', ${beer.precio})" class="btn-order w-full">Comprar Ahora</button>`
                         }
                     </div>
                 `;
@@ -266,44 +232,49 @@
             });
         }
 
-        // Función para conectar con Mercado Pago
+        // Lógica de Pago con Mercado Pago
         async function iniciarPago(id, nombre, precio) {
             const btn = document.getElementById(`btn-${id}`);
             const originalText = btn.innerText;
             
             try {
-                // Indicador de carga visual
-                btn.innerText = "PROCESANDO...";
+                btn.innerText = "PREPARANDO...";
                 btn.classList.add('loading-btn');
 
-                // Llamada al backend para crear la preferencia de Mercado Pago
+                // IMPORTANTE: Asegúrate de que el backend tenga esta ruta habilitada
                 const response = await fetch(`${BASE_URL}/api/create-preference`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         id: id,
-                        title: `Cerveza Kolchawwe: ${nombre}`,
+                        title: `Kolchawwe ${nombre}`,
                         unit_price: precio,
                         quantity: 1
                     })
                 });
 
+                if (!response.ok) throw new Error('Error en servidor de pagos');
+
                 const preference = await response.json();
 
-                if (preference.id) {
-                    // Redirigir al Checkout de Mercado Pago
+                if (preference.init_point) {
                     window.location.href = preference.init_point;
                 } else {
-                    throw new Error("No se pudo crear la preferencia");
+                    throw new Error("Preferencia inválida");
                 }
 
             } catch (error) {
                 console.error("Error Mercado Pago:", error);
-                btn.innerText = "ERROR - REINTENTAR";
+                btn.innerText = "ERROR DE CONEXIÓN";
+                btn.style.backgroundColor = "#721c24";
+                btn.style.color = "white";
+                
                 setTimeout(() => {
                     btn.innerText = originalText;
                     btn.classList.remove('loading-btn');
-                }, 2000);
+                    btn.style.backgroundColor = "";
+                    btn.style.color = "";
+                }, 3000);
             }
         }
 
