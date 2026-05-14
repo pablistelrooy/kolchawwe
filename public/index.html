@@ -136,7 +136,7 @@
     <header id="inicio" class="hero-section min-h-screen flex items-center justify-center text-center px-4 pt-20">
         <div class="max-w-4xl flex flex-col items-center">
             <div class="logo-frame mb-8 shadow-2xl">
-                <!-- Imagen local para evitar errores de red externos -->
+                <!-- Imagen local con fallback -->
                 <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div style="display:none;" class="p-10 brand-font text-3xl text-brand-gold">KOLCHAWWE</div>
             </div>
@@ -188,16 +188,29 @@
     </footer>
 
     <script>
-        // Configuración de API
-        const API_URL = '/api/cervezas';
+        // Lógica de detección de servidor para evitar errores de conexión en entornos de previsualización
+        const getBaseUrl = () => {
+            // Si estamos en localhost o en un entorno de previsualización con guiones largos, intentamos apuntar al dominio real de Render
+            if (window.location.hostname.includes('goog') || window.location.hostname.includes('localhost')) {
+                return 'https://kolchawwe.onrender.com'; // Reemplaza esto con tu URL de Render si es diferente
+            }
+            return ''; // En producción usa rutas relativas
+        };
+
+        const BASE_URL = getBaseUrl();
+        const API_URL = `${BASE_URL}/api/cervezas`;
 
         async function loadInventory() {
             const grid = document.getElementById('products-grid');
             const loader = document.getElementById('loading-state');
 
             try {
-                // Intentamos cargar desde la API del servidor Render
-                const response = await fetch(API_URL);
+                // Intentamos cargar los datos con un timeout para que no quede cargando infinito
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+                const response = await fetch(API_URL, { signal: controller.signal });
+                clearTimeout(timeoutId);
                 
                 if (!response.ok) throw new Error('Error al conectar');
                 
@@ -205,12 +218,11 @@
                 renderCervezas(cervezas);
             } catch (err) {
                 console.error('Fallo de conexión:', err);
-                // Si falla la API, mostramos un error elegante
                 loader.innerHTML = `
-                    <div class="text-center p-8 border border-red-900/20 bg-red-900/5 rounded">
-                        <p class="text-red-500 text-[10px] uppercase tracking-widest font-bold">Error de Red</p>
-                        <p class="text-[10px] opacity-50 mt-2 uppercase tracking-widest">No se pudo obtener el stock actual.</p>
-                        <button onclick="location.reload()" class="mt-6 text-[10px] text-brand-gold border-b border-brand-gold uppercase tracking-widest font-bold">Reintentar</button>
+                    <div class="text-center p-8 border border-red-900/20 bg-red-900/5 rounded max-w-xs mx-auto">
+                        <p class="text-red-500 text-[10px] uppercase tracking-widest font-bold">Error de Bodega</p>
+                        <p class="text-[10px] opacity-50 mt-2 uppercase tracking-widest">No pudimos sincronizar el stock actual.</p>
+                        <button onclick="location.reload()" class="mt-6 text-[10px] text-brand-gold border-b border-brand-gold uppercase tracking-widest font-bold">Reintentar Conexión</button>
                     </div>
                 `;
             }
@@ -224,7 +236,7 @@
             grid.classList.remove('hidden');
             grid.innerHTML = '';
 
-            if (items.length === 0) {
+            if (!items || items.length === 0) {
                 grid.innerHTML = `<p class="col-span-full text-center opacity-30 uppercase text-[10px] tracking-[0.5em] py-20">Bodega temporalmente vacía</p>`;
                 return;
             }
