@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOLCHAWWE | Cervecería Artesanal</title>
+    <title>KOLCHAWWE | Colección de Bodega</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap');
         
         :root {
-            --mp-blue: #009ee3;
             --kol-gold: #b38e44;
             --kol-gold-light: #d4af37;
         }
@@ -24,162 +23,170 @@
 
         .font-serif { font-family: 'Playfair Display', serif; }
 
-        /* Estilo de Tarjetas de Producto - Diseño Colección de Bodega */
+        /* Tarjetas Estilo Bodega */
         .card-beer {
-            background: rgba(20, 20, 20, 0.6);
-            border: 1px solid rgba(179, 142, 68, 0.15);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            position: relative;
+            background: linear-gradient(145deg, rgba(25, 25, 25, 0.9), rgba(10, 10, 10, 0.9));
+            border: 1px solid rgba(179, 142, 68, 0.1);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         .card-beer:hover {
             border-color: var(--kol-gold);
-            transform: translateY(-8px);
-            background: rgba(30, 30, 30, 0.8);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
 
-        .btn-buy {
+        .btn-gold {
             background: var(--kol-gold);
             color: #000;
-            font-weight: 800;
+            font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            font-size: 11px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
-        .btn-buy:hover:not(:disabled) {
+        .btn-gold:hover:not(:disabled) {
             background: var(--kol-gold-light);
-            letter-spacing: 0.2em;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(179, 142, 68, 0.4);
         }
 
-        /* Carrito Lateral */
+        /* Carrito Lateral Animado */
         #cart-panel {
-            background: #000000;
-            border-left: 1px solid var(--kol-gold);
-            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+            background: #080808;
+            border-left: 1px solid rgba(179, 142, 68, 0.2);
+            transition: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1);
             z-index: 100;
         }
         .cart-open #cart-panel { transform: translateX(0); }
         .cart-closed #cart-panel { transform: translateX(100%); }
 
-        .gold-glow { text-shadow: 0 0 15px rgba(179, 142, 68, 0.4); }
-
         .loader {
-            border: 2px solid rgba(255,255,255,0.2);
-            border-top: 2px solid white;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top: 2px solid var(--kol-gold);
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Glow para el título */
+        .gold-title {
+            background: linear-gradient(to bottom, #fff, #b38e44);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body class="cart-closed">
 
-    <!-- Configuración del Ambiente (Solo para pruebas) -->
-    <div class="fixed bottom-4 left-4 z-[60] bg-zinc-900/90 p-3 rounded-lg border border-white/10 text-[10px]">
-        <label class="block mb-1 text-zinc-500 uppercase font-bold text-[8px]">URL de tu Render:</label>
-        <input type="text" id="render-url" placeholder="https://kolchawwe-web.onrender.com" 
-               class="bg-black border border-white/20 p-1 rounded text-white outline-none w-48 text-[9px]">
-    </div>
-
-    <!-- Barra de Navegación -->
-    <nav class="fixed w-full top-0 bg-black/95 backdrop-blur-md border-b border-white/5 p-5 flex justify-between items-center z-50">
-        <div class="text-xl font-bold tracking-[0.2em] font-serif italic text-amber-600">KOLCHAWWE</div>
-        <button onclick="toggleCart()" class="relative group p-2">
-            <i class="fa-solid fa-cart-shopping text-xl text-zinc-400 group-hover:text-white transition"></i>
-            <span id="cart-badge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-black">0</span>
+    <!-- Navbar -->
+    <nav class="fixed w-full top-0 bg-black/80 backdrop-blur-xl border-b border-white/5 p-6 flex justify-between items-center z-50">
+        <div class="flex flex-col">
+            <span class="text-xl font-serif italic tracking-tighter text-white">KOLCHAWWE</span>
+            <span class="text-[8px] uppercase tracking-[0.4em] text-amber-700 font-bold">San Fernando - Chile</span>
+        </div>
+        <button onclick="toggleCart()" class="relative p-2 text-zinc-400 hover:text-white transition">
+            <i class="fa-solid fa-bag-shopping text-2xl"></i>
+            <span id="cart-badge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
         </button>
     </nav>
 
-    <!-- Encabezado Estilo Bodega -->
-    <header class="pt-40 pb-20 px-6 text-center">
-        <div class="mb-6">
-            <span class="text-[10px] tracking-[0.5em] uppercase text-amber-700 font-bold">Nobleza Salvaje</span>
-        </div>
-        <h1 class="text-4xl md:text-7xl font-serif italic text-white gold-glow mb-6">Colección de Bodega</h1>
-        <p class="max-w-2xl mx-auto text-zinc-500 text-sm leading-relaxed tracking-wide">
-            Cervezas de autor nacidas en el Valle de Colchagua. Procesos lentos, sabores profundos y el carácter indomable de nuestra tierra.
+    <!-- Header -->
+    <header class="pt-48 pb-24 px-6 text-center max-w-4xl mx-auto">
+        <img src="https://raw.githubusercontent.com/pablokost/kolchawwe-web/main/logo.png" alt="Logo" class="w-32 mx-auto mb-10 opacity-80" onerror="this.style.display='none'">
+        <h1 class="text-5xl md:text-8xl font-serif italic gold-title mb-8">Colección de Bodega</h1>
+        <p class="text-zinc-500 text-sm md:text-base leading-relaxed tracking-widest uppercase opacity-70">
+            "Nobleza salvaje embotellada en el corazón del valle"
         </p>
-        <div class="h-[1px] w-32 bg-amber-900/30 mx-auto mt-12"></div>
     </header>
 
-    <!-- Catálogo de Productos -->
-    <main class="max-w-6xl mx-auto px-6 pb-40">
-        <div id="catalog" class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <!-- Cargando productos dinámicamente -->
-            <div class="col-span-full text-center py-20 text-zinc-700 uppercase tracking-widest text-xs animate-pulse">
-                Abriendo los portones de la bodega...
+    <!-- Catálogo -->
+    <main class="max-w-7xl mx-auto px-6 pb-32">
+        <div id="catalog" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Shimmer effect mientras carga -->
+            <div class="col-span-full py-20 text-center text-zinc-800 tracking-[0.5em] uppercase text-xs">
+                Sincronizando con la bodega...
             </div>
         </div>
     </main>
 
-    <!-- Panel Lateral del Carrito -->
-    <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[450px] translate-x-full flex flex-col shadow-2xl">
-        <div class="p-8 border-b border-zinc-900 flex justify-between items-center">
-            <h2 class="font-serif italic text-2xl text-white">Tu Selección</h2>
-            <button onclick="toggleCart()" class="text-zinc-500 hover:text-white text-3xl transition">&times;</button>
+    <!-- Carrito -->
+    <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[480px] translate-x-full flex flex-col shadow-2xl">
+        <div class="p-10 border-b border-zinc-900 flex justify-between items-center">
+            <div>
+                <h2 class="font-serif italic text-3xl text-white">Tu Selección</h2>
+                <p class="text-[9px] uppercase tracking-widest text-zinc-600 mt-1">Disponibilidad en tiempo real</p>
+            </div>
+            <button onclick="toggleCart()" class="text-zinc-500 hover:text-white text-4xl transition">&times;</button>
         </div>
 
-        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6">
-            <!-- Items del carrito -->
+        <div id="cart-items" class="flex-1 overflow-y-auto p-10 space-y-8">
+            <!-- Items -->
         </div>
 
-        <div class="p-8 bg-zinc-950 border-t border-zinc-900">
-            <div class="flex justify-between items-center mb-8 px-2">
-                <span class="text-xs uppercase tracking-widest text-zinc-500 font-bold">Total Compra</span>
-                <span id="cart-total" class="text-3xl font-serif text-white">$0</span>
+        <div class="p-10 bg-zinc-950 border-t border-zinc-900">
+            <div class="flex justify-between items-end mb-10">
+                <span class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Total del Pedido</span>
+                <span id="cart-total" class="text-4xl font-serif text-white">$0</span>
             </div>
             
             <button id="pay-btn" onclick="iniciarPago()" 
-                    class="w-full bg-[#009ee3] hover:bg-[#0087c2] text-white py-5 rounded-xl font-bold flex items-center justify-center gap-3 transition-all disabled:opacity-30">
-                <i class="fa-solid fa-credit-card"></i>
+                    class="w-full bg-[#009ee3] hover:bg-[#00aae4] text-white py-6 rounded-2xl font-bold flex items-center justify-center gap-4 transition-all shadow-xl disabled:opacity-20">
+                <i class="fa-solid fa-shield-check"></i>
                 PAGAR CON MERCADO PAGO
             </button>
-            <p class="text-[9px] text-zinc-600 text-center mt-4 uppercase tracking-widest">Transacción segura vía Mercado Pago</p>
+            <div class="flex justify-center gap-4 mt-6 opacity-30 grayscale">
+                <i class="fa-brands fa-cc-visa text-xl"></i>
+                <i class="fa-brands fa-cc-mastercard text-xl"></i>
+                <i class="fa-solid fa-building-columns text-xl"></i>
+            </div>
         </div>
     </aside>
 
     <script>
-        let products = [];
-        let cart = JSON.parse(localStorage.getItem('kolchawwe_v3_cart')) || [];
+        // DETECCIÓN AUTOMÁTICA DE URL
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : window.location.origin;
 
-        async function loadProducts() {
-            const baseUrl = document.getElementById('render-url').value || '';
+        let products = [];
+        let cart = JSON.parse(localStorage.getItem('kolchawwe_cart_v4')) || [];
+
+        async function init() {
             try {
-                const res = await fetch(`${baseUrl}/api/cervezas`);
+                // Intentamos cargar desde tu API de Render
+                const res = await fetch(`${API_URL}/api/cervezas`);
+                if(!res.ok) throw new Error();
                 products = await res.json();
-                renderCatalog();
-                updateUI();
-            } catch (err) {
-                console.error(err);
-                // Si falla el fetch al backend, mostramos locales para previsualizar diseño
+            } catch (e) {
+                console.log("Usando datos de respaldo");
+                // Datos de respaldo con nombres exactos de tu imagen
                 products = [
-                    {id: 1, nombre: 'Lager', precio: 4500, stock: 10},
-                    {id: 2, nombre: 'Golden Ale', precio: 4800, stock: 5},
-                    {id: 3, nombre: 'Stout', precio: 5000, stock: 0}
+                    { id: 1, nombre: 'Lager', precio: 4500, stock: 12, desc: 'Cítrica y Refrescante' },
+                    { id: 2, nombre: 'British Golden Ale', precio: 4900, stock: 8, desc: 'Balance de Maltas' },
+                    { id: 3, nombre: 'Stout', precio: 4900, stock: 5, desc: 'Cacao y Malta Tostada' }
                 ];
-                renderCatalog();
             }
+            renderCatalog();
+            updateUI();
         }
 
         function renderCatalog() {
             const container = document.getElementById('catalog');
             container.innerHTML = products.map(p => `
-                <div class="card-beer p-10 rounded-2xl text-center">
-                    <div class="absolute top-4 right-6 text-[7px] uppercase tracking-widest text-amber-700 font-black">
+                <div class="card-beer p-12 rounded-3xl text-center relative overflow-hidden">
+                    <div class="absolute top-6 right-8 text-[8px] uppercase tracking-widest ${p.stock > 0 ? 'text-amber-600' : 'text-red-800'} font-bold">
                         ${p.stock > 0 ? 'En Stock' : 'Agotado'}
                     </div>
-                    <h3 class="text-2xl font-serif italic uppercase mb-2 text-white tracking-tighter">${p.nombre}</h3>
-                    <p class="text-[9px] text-zinc-500 uppercase tracking-[0.2em] mb-12">Variedad Artesanal</p>
-                    <div class="text-4xl font-light mb-12 text-white font-serif italic">$${p.precio.toLocaleString('es-CL')}</div>
+                    <h3 class="text-3xl font-serif italic mb-2 text-white">${p.nombre}</h3>
+                    <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-10">${p.desc || 'Edición Limitada'}</p>
+                    <div class="text-5xl font-serif text-white mb-10">$${p.precio.toLocaleString('es-CL')}</div>
                     <button onclick="addToCart(${p.id})" 
-                            class="btn-buy w-full py-4 rounded-xl shadow-lg" 
+                            class="btn-gold w-full py-5 rounded-2xl shadow-lg" 
                             ${p.stock <= 0 ? 'disabled' : ''}>
-                        ${p.stock > 0 ? 'Añadir al Carro' : 'Sin Stock'}
+                        ${p.stock > 0 ? 'Añadir al Carro' : 'Agotado'}
                     </button>
-                    <p class="text-[8px] uppercase text-zinc-700 mt-6 tracking-widest">${p.stock} unidades disponibles</p>
+                    <p class="text-[9px] uppercase text-zinc-700 mt-6 tracking-[0.2em]">${p.stock} Unidades en Cava</p>
                 </div>
             `).join('');
         }
@@ -211,23 +218,21 @@
         }
 
         function updateUI() {
-            localStorage.setItem('kolchawwe_v3_cart', JSON.stringify(cart));
+            localStorage.setItem('kolchawwe_cart_v4', JSON.stringify(cart));
             const container = document.getElementById('cart-items');
             const totalEl = document.getElementById('cart-total');
             const badge = document.getElementById('cart-badge');
             
             container.innerHTML = cart.map(i => `
-                <div class="bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-xs font-bold uppercase tracking-widest text-amber-600">${i.nombre}</span>
-                        <span class="font-serif text-white">$${(i.precio * i.quantity).toLocaleString('es-CL')}</span>
+                <div class="flex gap-6 items-center bg-zinc-900/20 p-6 rounded-2xl border border-zinc-900">
+                    <div class="flex-1">
+                        <h4 class="text-sm font-bold uppercase tracking-widest text-amber-600 mb-1">${i.nombre}</h4>
+                        <p class="text-zinc-500 text-xs">$${i.precio.toLocaleString('es-CL')} c/u</p>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center border border-zinc-700 bg-black rounded-lg overflow-hidden">
-                            <button onclick="updateQty(${i.id}, -1)" class="w-10 h-10 flex items-center justify-center hover:bg-zinc-800 transition">-</button>
-                            <span class="w-10 text-center text-xs font-bold text-white">${i.quantity}</span>
-                            <button onclick="updateQty(${i.id}, 1)" class="w-10 h-10 flex items-center justify-center hover:bg-zinc-800 transition">+</button>
-                        </div>
+                    <div class="flex items-center bg-black rounded-xl border border-zinc-800">
+                        <button onclick="updateQty(${i.id}, -1)" class="w-10 h-10 hover:text-amber-600 transition">-</button>
+                        <span class="w-8 text-center text-xs font-bold">${i.quantity}</span>
+                        <button onclick="updateQty(${i.id}, 1)" class="w-10 h-10 hover:text-amber-600 transition">+</button>
                     </div>
                 </div>
             `).join('');
@@ -239,42 +244,43 @@
         }
 
         async function iniciarPago() {
-            const baseUrl = document.getElementById('render-url').value;
-            if(!baseUrl) {
-                alert("Ingresa la URL de tu backend en el cuadro inferior izquierdo para procesar el pago.");
-                return;
-            }
-
             const btn = document.getElementById('pay-btn');
+            const originalContent = btn.innerHTML;
             btn.innerHTML = '<div class="loader"></div>';
             btn.disabled = true;
 
             try {
-                const res = await fetch(`${baseUrl}/api/create-preference`, {
+                // Enviamos el carrito completo a tu backend en Render
+                const response = await fetch(`${API_URL}/api/create-preference`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        items: cart.map(i => ({ 
-                            title: `Cerveza Kolchawwe ${i.nombre}`, 
-                            unit_price: i.precio, 
-                            quantity: i.quantity 
-                        })) 
+                        items: cart.map(i => ({
+                            title: `Kolchawwe ${i.nombre}`,
+                            unit_price: i.precio,
+                            quantity: i.quantity
+                        }))
                     })
                 });
-                const data = await res.json();
-                if(data.init_point) {
+
+                if (!response.ok) throw new Error('Error en el servidor');
+                
+                const data = await response.json();
+                
+                if (data.init_point) {
                     window.location.href = data.init_point;
                 } else {
-                    throw new Error();
+                    throw new Error('No se recibió el punto de inicio');
                 }
-            } catch (e) {
-                alert("Error al conectar con el servidor de pagos en Render.");
-                btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> PAGAR CON MERCADO PAGO';
+            } catch (error) {
+                console.error("Pago fallido:", error);
+                alert("No pudimos conectar con Mercado Pago. Asegúrate de que tu servidor en Render esté encendido.");
+                btn.innerHTML = originalContent;
                 btn.disabled = false;
             }
         }
 
-        loadProducts();
+        init();
     </script>
 </body>
 </html>
