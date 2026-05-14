@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kolchawwe | Cerveza Artesanal San Fernando</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SDK de Mercado Pago -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@300;400;600&display=swap');
@@ -77,10 +79,6 @@
             transition: all 0.3s ease;
         }
 
-        .whatsapp-float:hover {
-            transform: scale(1.1) rotate(5deg);
-        }
-
         .btn-order {
             background-color: var(--brand-gold);
             color: black;
@@ -113,12 +111,19 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Estilo para el botón de Mercado Pago cuando está cargando */
+        .loading-btn {
+            opacity: 0.7;
+            cursor: wait;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
     <!-- WhatsApp Flotante -->
-    <a href="https://wa.me/56943409132?text=Hola%20Kolchawwe!%20Me%20gustaría%20hacer%20un%20pedido." class="whatsapp-float" target="_blank">
+    <a href="https://wa.me/56943409132?text=Hola%20Kolchawwe!%20Tengo%20una%20duda%20sobre%20mi%20compra." class="whatsapp-float" target="_blank">
         <i class="fab fa-whatsapp"></i>
     </a>
 
@@ -136,7 +141,6 @@
     <header id="inicio" class="hero-section min-h-screen flex items-center justify-center text-center px-4 pt-20">
         <div class="max-w-4xl flex flex-col items-center">
             <div class="logo-frame mb-8 shadow-2xl">
-                <!-- Imagen local con fallback -->
                 <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <div style="display:none;" class="p-10 brand-font text-3xl text-brand-gold">KOLCHAWWE</div>
             </div>
@@ -149,14 +153,14 @@
     <section id="bodega" class="py-24 px-6 bg-[#0f0d0b]">
         <div class="text-center mb-16">
             <h2 class="text-3xl md:text-5xl font-bold mb-4 uppercase tracking-tighter">Colección de Bodega</h2>
-            <p class="text-[10px] uppercase tracking-[0.5em] text-brand-gold opacity-50 font-bold">Disponibilidad en Tiempo Real</p>
+            <p class="text-[10px] uppercase tracking-[0.5em] text-brand-gold opacity-50 font-bold">Pago Seguro con Mercado Pago</p>
             <div class="w-20 h-px bg-brand-gold mx-auto mt-8 opacity-30"></div>
         </div>
 
         <!-- Cargando -->
         <div id="loading-state" class="flex flex-col items-center py-20">
             <span class="loader-spinner mb-6"></span>
-            <p class="text-[10px] uppercase tracking-[0.3em] opacity-40">Sincronizando con bodega central...</p>
+            <p class="text-[10px] uppercase tracking-[0.3em] opacity-40">Consultando stock...</p>
         </div>
 
         <!-- Contenedor -->
@@ -171,9 +175,9 @@
             <h2 class="text-3xl font-bold text-brand-gold mb-8 italic uppercase">KOLCHAWWE</h2>
             
             <div class="flex justify-center space-x-10 my-12">
-                <a href="https://wa.me/56943409132" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-125"><i class="fab fa-whatsapp"></i></a>
-                <a href="https://www.instagram.com/kolchawwe/" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-125"><i class="fab fa-instagram"></i></a>
-                <a href="https://web.facebook.com/people/Kolchawwe/61584739270268/" target="_blank" class="text-2xl hover:text-brand-gold transition-all hover:scale-125"><i class="fab fa-facebook"></i></a>
+                <a href="https://wa.me/56943409132" target="_blank" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.instagram.com/kolchawwe/" target="_blank" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-instagram"></i></a>
+                <a href="https://web.facebook.com/people/Kolchawwe/61584739270268/" target="_blank" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-facebook"></i></a>
             </div>
 
             <div class="max-w-2xl mx-auto border border-[#332d28] p-10 mb-16 bg-[#0f0d0b]">
@@ -188,43 +192,35 @@
     </footer>
 
     <script>
-        // Lógica de detección de servidor para evitar errores de conexión en entornos de previsualización
+        // Configuración de Servidor
         const getBaseUrl = () => {
-            // Si estamos en localhost o en un entorno de previsualización con guiones largos, intentamos apuntar al dominio real de Render
             if (window.location.hostname.includes('goog') || window.location.hostname.includes('localhost')) {
-                return 'https://kolchawwe.onrender.com'; // Reemplaza esto con tu URL de Render si es diferente
+                return 'https://kolchawwe.onrender.com'; 
             }
-            return ''; // En producción usa rutas relativas
+            return ''; 
         };
 
         const BASE_URL = getBaseUrl();
         const API_URL = `${BASE_URL}/api/cervezas`;
+        
+        // Inicializar Mercado Pago (Usa tu llave pública aquí)
+        // Por ahora lo dejamos listo para que el backend maneje la creación de la preferencia
+        const mp = new MercadoPago('APP_USR-tu-public-key-aqui', {
+            locale: 'es-CL'
+        });
 
         async function loadInventory() {
             const grid = document.getElementById('products-grid');
             const loader = document.getElementById('loading-state');
 
             try {
-                // Intentamos cargar los datos con un timeout para que no quede cargando infinito
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-                const response = await fetch(API_URL, { signal: controller.signal });
-                clearTimeout(timeoutId);
-                
+                const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('Error al conectar');
-                
                 const cervezas = await response.json();
                 renderCervezas(cervezas);
             } catch (err) {
                 console.error('Fallo de conexión:', err);
-                loader.innerHTML = `
-                    <div class="text-center p-8 border border-red-900/20 bg-red-900/5 rounded max-w-xs mx-auto">
-                        <p class="text-red-500 text-[10px] uppercase tracking-widest font-bold">Error de Bodega</p>
-                        <p class="text-[10px] opacity-50 mt-2 uppercase tracking-widest">No pudimos sincronizar el stock actual.</p>
-                        <button onclick="location.reload()" class="mt-6 text-[10px] text-brand-gold border-b border-brand-gold uppercase tracking-widest font-bold">Reintentar Conexión</button>
-                    </div>
-                `;
+                loader.innerHTML = `<p class="text-red-500 uppercase text-[10px] tracking-widest">Error de sincronización con bodega.</p>`;
             }
         }
 
@@ -236,17 +232,10 @@
             grid.classList.remove('hidden');
             grid.innerHTML = '';
 
-            if (!items || items.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center opacity-30 uppercase text-[10px] tracking-[0.5em] py-20">Bodega temporalmente vacía</p>`;
-                return;
-            }
-
             items.forEach(beer => {
                 const outOfStock = beer.stock <= 0;
                 const priceFormatted = new Intl.NumberFormat('es-CL', { 
-                    style: 'currency', 
-                    currency: 'CLP',
-                    maximumFractionDigits: 0 
+                    style: 'currency', currency: 'CLP', maximumFractionDigits: 0 
                 }).format(beer.precio);
 
                 const card = document.createElement('div');
@@ -260,18 +249,16 @@
                         <h3 class="text-2xl text-brand-gold mb-3 uppercase tracking-wider">${beer.nombre}</h3>
                         <p class="text-[9px] uppercase tracking-[0.3em] mb-6 opacity-40">Cepa San Fernando</p>
                         <div class="w-8 h-px bg-brand-gold/30 mx-auto mb-10"></div>
-                        
                         <div class="mb-8">
                             <span class="text-4xl font-light text-white">${priceFormatted}</span>
                         </div>
-                        
                         <p class="text-[8px] opacity-40 uppercase tracking-[0.4em] mb-4">Stock: ${beer.stock} un.</p>
                     </div>
 
                     <div class="mt-8">
                         ${outOfStock ? 
                             `<button disabled class="w-full py-4 bg-zinc-900 text-zinc-700 rounded uppercase text-[9px] font-bold tracking-widest cursor-not-allowed">Sin Stock</button>` :
-                            `<button onclick="sendOrder('${beer.nombre}', ${beer.precio})" class="btn-order w-full shadow-lg">Reservar Ahora</button>`
+                            `<button id="btn-${beer.id}" onclick="iniciarPago(${beer.id}, '${beer.nombre}', ${beer.precio})" class="btn-order w-full shadow-lg">Comprar Ahora</button>`
                         }
                     </div>
                 `;
@@ -279,14 +266,47 @@
             });
         }
 
-        function sendOrder(name, price) {
-            const formattedPrice = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(price);
-            const message = `¡Hola Kolchawwe! 🍻\n\nMe gustaría reservar la variedad: *${name}*\nPrecio: ${formattedPrice}\n\n¿Tienen disponibilidad para entrega en San Fernando?`;
-            const url = `https://wa.me/56943409132?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
+        // Función para conectar con Mercado Pago
+        async function iniciarPago(id, nombre, precio) {
+            const btn = document.getElementById(`btn-${id}`);
+            const originalText = btn.innerText;
+            
+            try {
+                // Indicador de carga visual
+                btn.innerText = "PROCESANDO...";
+                btn.classList.add('loading-btn');
+
+                // Llamada al backend para crear la preferencia de Mercado Pago
+                const response = await fetch(`${BASE_URL}/api/create-preference`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: id,
+                        title: `Cerveza Kolchawwe: ${nombre}`,
+                        unit_price: precio,
+                        quantity: 1
+                    })
+                });
+
+                const preference = await response.json();
+
+                if (preference.id) {
+                    // Redirigir al Checkout de Mercado Pago
+                    window.location.href = preference.init_point;
+                } else {
+                    throw new Error("No se pudo crear la preferencia");
+                }
+
+            } catch (error) {
+                console.error("Error Mercado Pago:", error);
+                btn.innerText = "ERROR - REINTENTAR";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('loading-btn');
+                }, 2000);
+            }
         }
 
-        // Cargar al iniciar
         document.addEventListener('DOMContentLoaded', loadInventory);
     </script>
 </body>
