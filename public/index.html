@@ -3,207 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOLCHAWWE | Colección de Bodega</title>
+    <title>KOLCHAWWE | Fine Artisanal Beer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@200;400;600&display=swap');
         
         :root {
-            --kol-gold: #b38e44;
-            --kol-gold-light: #d4af37;
+            --gold: #b38e44;
+            --gold-light: #d4af37;
+            --dark: #070707;
         }
 
         body {
-            background-color: #0c0c0c;
-            color: #f4e9d5;
-            font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
+            background-color: var(--dark);
+            color: #e5e5e5;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .font-serif { font-family: 'Playfair Display', serif; }
+        .serif { font-family: 'Cinzel', serif; }
 
-        /* Tarjetas Estilo Bodega */
-        .card-beer {
-            background: linear-gradient(145deg, rgba(25, 25, 25, 0.9), rgba(10, 10, 10, 0.9));
-            border: 1px solid rgba(179, 142, 68, 0.1);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .card-beer:hover {
-            border-color: var(--kol-gold);
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        }
-
-        .btn-gold {
-            background: var(--kol-gold);
-            color: #000;
-            font-weight: 700;
-            letter-spacing: 0.1em;
+        .text-xs-gold {
+            font-size: 0.6rem;
             text-transform: uppercase;
-            transition: all 0.3s ease;
-        }
-        .btn-gold:hover:not(:disabled) {
-            background: var(--kol-gold-light);
-            transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(179, 142, 68, 0.4);
+            letter-spacing: 0.4em;
+            color: var(--gold);
+            font-weight: 700;
         }
 
-        /* Carrito Lateral Animado */
-        #cart-panel {
-            background: #080808;
-            border-left: 1px solid rgba(179, 142, 68, 0.2);
-            transition: transform 0.6s cubic-bezier(0.85, 0, 0.15, 1);
-            z-index: 100;
+        .beer-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.7s cubic-bezier(0.15, 1, 0.3, 1);
+            position: relative;
         }
+
+        .beer-card:hover {
+            border-color: rgba(179, 142, 68, 0.4);
+            transform: translateY(-8px);
+        }
+
+        .btn-gold-action {
+            background: linear-gradient(135deg, #b38e44 0%, #d4af37 100%);
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(179, 142, 68, 0.2);
+        }
+
+        .btn-gold-action:hover:not(:disabled) {
+            transform: scale(1.03);
+            box-shadow: 0 8px 25px rgba(179, 142, 68, 0.4);
+            filter: brightness(1.1);
+        }
+
+        #cart-panel {
+            background: #050505;
+            border-left: 1px solid rgba(179, 142, 68, 0.15);
+            transition: transform 0.6s cubic-bezier(0.82, 0.01, 0.15, 1);
+        }
+
         .cart-open #cart-panel { transform: translateX(0); }
         .cart-closed #cart-panel { transform: translateX(100%); }
 
+        #notification-box {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 200;
+            pointer-events: none;
+        }
+        #notification-box.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
         .loader {
+            width: 20px;
+            height: 20px;
             border: 2px solid rgba(255,255,255,0.1);
-            border-top: 2px solid var(--kol-gold);
+            border-top: 2px solid var(--gold);
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Glow para el título */
-        .gold-title {
-            background: linear-gradient(to bottom, #fff, #b38e44);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: var(--gold); }
     </style>
 </head>
 <body class="cart-closed">
 
-    <!-- Navbar -->
-    <nav class="fixed w-full top-0 bg-black/80 backdrop-blur-xl border-b border-white/5 p-6 flex justify-between items-center z-50">
-        <div class="flex flex-col">
-            <span class="text-xl font-serif italic tracking-tighter text-white">KOLCHAWWE</span>
-            <span class="text-[8px] uppercase tracking-[0.4em] text-amber-700 font-bold">San Fernando - Chile</span>
+    <!-- Notificación Flotante -->
+    <div id="notification-box">
+        <div class="bg-amber-900/90 backdrop-blur-md border border-amber-500/50 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-4">
+            <i class="fa-solid fa-circle-exclamation text-amber-400"></i>
+            <span id="notification-text" class="text-[10px] uppercase tracking-[0.2em] font-bold">Aviso</span>
         </div>
-        <button onclick="toggleCart()" class="relative p-2 text-zinc-400 hover:text-white transition">
-            <i class="fa-solid fa-bag-shopping text-2xl"></i>
-            <span id="cart-badge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="fixed w-full top-0 bg-black/80 backdrop-blur-lg border-b border-white/5 py-5 px-10 flex justify-between items-center z-50">
+        <div class="flex flex-col">
+            <span class="serif text-base tracking-[0.3em] text-white">KOLCHAWWE</span>
+            <span class="text-[6px] uppercase tracking-[0.5em] text-zinc-500 font-bold">Nobleza Salvaje</span>
+        </div>
+        <button onclick="toggleCart()" class="text-zinc-400 hover:text-white transition flex items-center gap-4">
+            <div class="relative">
+                <i class="fa-light fa-shopping-bag text-xl"></i>
+                <span id="cart-badge" class="absolute -top-2 -right-2 text-[9px] font-bold text-amber-500">0</span>
+            </div>
         </button>
     </nav>
 
     <!-- Header -->
     <header class="pt-48 pb-24 px-6 text-center max-w-4xl mx-auto">
-        <img src="https://raw.githubusercontent.com/pablokost/kolchawwe-web/main/logo.png" alt="Logo" class="w-32 mx-auto mb-10 opacity-80" onerror="this.style.display='none'">
-        <h1 class="text-5xl md:text-8xl font-serif italic gold-title mb-8">Colección de Bodega</h1>
-        <p class="text-zinc-500 text-sm md:text-base leading-relaxed tracking-widest uppercase opacity-70">
-            "Nobleza salvaje embotellada en el corazón del valle"
-        </p>
+        <span class="text-xs-gold mb-4 block">Valle de Colchagua</span>
+        <h1 class="serif text-3xl md:text-5xl font-light text-white mb-8 italic tracking-tight">Colección de Bodega</h1>
+        <div class="w-8 h-[1px] bg-amber-900/40 mx-auto mb-8"></div>
     </header>
 
     <!-- Catálogo -->
-    <main class="max-w-7xl mx-auto px-6 pb-32">
+    <main class="max-w-6xl mx-auto px-10 pb-32">
+        <div id="catalog-status" class="text-center py-10 hidden">
+            <div class="loader mx-auto mb-4"></div>
+            <p class="text-[8px] uppercase tracking-widest text-zinc-500">Sincronizando con bodega...</p>
+        </div>
         <div id="catalog" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Shimmer effect mientras carga -->
-            <div class="col-span-full py-20 text-center text-zinc-800 tracking-[0.5em] uppercase text-xs">
-                Sincronizando con la bodega...
-            </div>
+            <!-- Productos -->
         </div>
     </main>
 
-    <!-- Carrito -->
-    <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[480px] translate-x-full flex flex-col shadow-2xl">
-        <div class="p-10 border-b border-zinc-900 flex justify-between items-center">
-            <div>
-                <h2 class="font-serif italic text-3xl text-white">Tu Selección</h2>
-                <p class="text-[9px] uppercase tracking-widest text-zinc-600 mt-1">Disponibilidad en tiempo real</p>
-            </div>
-            <button onclick="toggleCart()" class="text-zinc-500 hover:text-white text-4xl transition">&times;</button>
+    <!-- Panel de Carro -->
+    <aside id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[400px] translate-x-full z-[100] flex flex-col shadow-2xl">
+        <div class="p-10 border-b border-white/5 flex justify-between items-center">
+            <h2 class="serif text-xl text-white italic">Mi Pedido</h2>
+            <button onclick="toggleCart()" class="text-zinc-600 hover:text-white text-3xl font-light transition">&times;</button>
         </div>
 
-        <div id="cart-items" class="flex-1 overflow-y-auto p-10 space-y-8">
-            <!-- Items -->
-        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-10 space-y-8"></div>
 
-        <div class="p-10 bg-zinc-950 border-t border-zinc-900">
-            <div class="flex justify-between items-end mb-10">
-                <span class="text-[10px] uppercase tracking-[0.3em] text-zinc-500 font-bold">Total del Pedido</span>
-                <span id="cart-total" class="text-4xl font-serif text-white">$0</span>
+        <div class="p-10 bg-black/80 border-t border-white/5">
+            <div class="flex justify-between items-center mb-10">
+                <span class="text-[8px] uppercase tracking-[0.3em] text-zinc-600 font-bold">Total</span>
+                <span id="cart-total" class="serif text-2xl text-white">$0</span>
             </div>
             
             <button id="pay-btn" onclick="iniciarPago()" 
-                    class="w-full bg-[#009ee3] hover:bg-[#00aae4] text-white py-6 rounded-2xl font-bold flex items-center justify-center gap-4 transition-all shadow-xl disabled:opacity-20">
-                <i class="fa-solid fa-shield-check"></i>
-                PAGAR CON MERCADO PAGO
+                    class="btn-gold-action w-full py-5 rounded-sm flex items-center justify-center gap-3 disabled:opacity-20">
+                FINALIZAR COMPRA
             </button>
-            <div class="flex justify-center gap-4 mt-6 opacity-30 grayscale">
-                <i class="fa-brands fa-cc-visa text-xl"></i>
-                <i class="fa-brands fa-cc-mastercard text-xl"></i>
-                <i class="fa-solid fa-building-columns text-xl"></i>
-            </div>
         </div>
     </aside>
 
     <script>
-        // DETECCIÓN AUTOMÁTICA DE URL
-        const API_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000' 
-            : window.location.origin;
+        const API_URL = window.location.origin;
+
+        // DATOS DE RESPALDO: Si la base de datos falla, se muestran estos para que no se vea vacía la tienda.
+        const backupProducts = [
+            { id: 1, nombre: 'Lager', precio: 4500, stock: 12, desc: 'Esencia Cítrica' },
+            { id: 2, nombre: 'British Golden Ale', precio: 4900, stock: 8, desc: 'Cuerpo de Malta' },
+            { id: 3, nombre: 'Stout', precio: 4900, stock: 0, desc: 'Alma de Cacao' }
+        ];
 
         let products = [];
-        let cart = JSON.parse(localStorage.getItem('kolchawwe_cart_v4')) || [];
+        let cart = JSON.parse(localStorage.getItem('kol_cart_gold_v3')) || [];
 
-        async function init() {
+        function notify(message) {
+            const box = document.getElementById('notification-box');
+            const text = document.getElementById('notification-text');
+            text.innerText = message;
+            box.classList.add('show');
+            setTimeout(() => box.classList.remove('show'), 3000);
+        }
+
+        async function fetchInventory() {
+            const status = document.getElementById('catalog-status');
+            status.classList.remove('hidden');
+            
             try {
-                // Intentamos cargar desde tu API de Render
-                const res = await fetch(`${API_URL}/api/cervezas`);
-                if(!res.ok) throw new Error();
-                products = await res.json();
+                const response = await fetch(`${API_URL}/api/cervezas`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // Si el servidor responde pero la tabla está vacía, usamos backup
+                    products = data.length > 0 ? data : backupProducts;
+                } else {
+                    products = backupProducts;
+                }
             } catch (e) {
-                console.log("Usando datos de respaldo");
-                // Datos de respaldo con nombres exactos de tu imagen
-                products = [
-                    { id: 1, nombre: 'Lager', precio: 4500, stock: 12, desc: 'Cítrica y Refrescante' },
-                    { id: 2, nombre: 'British Golden Ale', precio: 4900, stock: 8, desc: 'Balance de Maltas' },
-                    { id: 3, nombre: 'Stout', precio: 4900, stock: 5, desc: 'Cacao y Malta Tostada' }
-                ];
+                console.warn("Servidor offline, cargando variedades de reserva.");
+                products = backupProducts;
+            } finally {
+                status.classList.add('hidden');
+                renderCatalog();
+                updateUI();
             }
-            renderCatalog();
-            updateUI();
         }
 
         function renderCatalog() {
             const container = document.getElementById('catalog');
+            if (products.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-zinc-500 text-[10px] uppercase tracking-widest">No hay variedades disponibles en este momento.</p>`;
+                return;
+            }
             container.innerHTML = products.map(p => `
-                <div class="card-beer p-12 rounded-3xl text-center relative overflow-hidden">
-                    <div class="absolute top-6 right-8 text-[8px] uppercase tracking-widest ${p.stock > 0 ? 'text-amber-600' : 'text-red-800'} font-bold">
+                <div class="beer-card p-12 text-center rounded-sm">
+                    <span class="text-[7px] uppercase tracking-[0.4em] mb-8 block font-bold ${p.stock > 0 ? 'text-amber-600' : 'text-red-900'}">
                         ${p.stock > 0 ? 'En Stock' : 'Agotado'}
-                    </div>
-                    <h3 class="text-3xl font-serif italic mb-2 text-white">${p.nombre}</h3>
-                    <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-10">${p.desc || 'Edición Limitada'}</p>
-                    <div class="text-5xl font-serif text-white mb-10">$${p.precio.toLocaleString('es-CL')}</div>
+                    </span>
+                    <h3 class="serif text-2xl text-white mb-3 italic">${p.nombre}</h3>
+                    <p class="text-[8px] text-zinc-600 uppercase tracking-widest mb-10 leading-relaxed">${p.desc || 'Edición Especial'}</p>
+                    <div class="serif text-xl text-zinc-300 mb-10">$${Number(p.precio).toLocaleString('es-CL')}</div>
                     <button onclick="addToCart(${p.id})" 
-                            class="btn-gold w-full py-5 rounded-2xl shadow-lg" 
-                            ${p.stock <= 0 ? 'disabled' : ''}>
-                        ${p.stock > 0 ? 'Añadir al Carro' : 'Agotado'}
+                            class="btn-gold-action py-3 px-10 w-full rounded-sm transition-all ${p.stock <= 0 ? 'opacity-20 grayscale cursor-not-allowed' : ''}">
+                        ${p.stock > 0 ? 'Añadir' : 'Agotado'}
                     </button>
-                    <p class="text-[9px] uppercase text-zinc-700 mt-6 tracking-[0.2em]">${p.stock} Unidades en Cava</p>
                 </div>
             `).join('');
         }
 
-        function toggleCart() { 
-            document.body.classList.toggle('cart-open'); 
-            document.body.classList.toggle('cart-closed'); 
+        function toggleCart() {
+            document.body.classList.toggle('cart-open');
+            document.body.classList.toggle('cart-closed');
         }
 
         function addToCart(id) {
             const p = products.find(prod => prod.id === id);
-            const inCart = cart.find(item => item.id === id);
-            if(inCart) { 
-                if(inCart.quantity < p.stock) inCart.quantity++; 
-            } else { 
-                cart.push({...p, quantity: 1}); 
+            if (p.stock <= 0) {
+                notify("Esta variedad se encuentra agotada temporalmente.");
+                return;
             }
+
+            const inCart = cart.find(item => item.id === id);
+            if(inCart) {
+                if(inCart.quantity < p.stock) {
+                    inCart.quantity++;
+                } else {
+                    notify("Límite de stock alcanzado para " + p.nombre);
+                    return;
+                }
+            } else {
+                cart.push({...p, quantity: 1});
+            }
+            
             updateUI();
             if(document.body.classList.contains('cart-closed')) toggleCart();
         }
@@ -211,28 +261,34 @@
         function updateQty(id, delta) {
             const item = cart.find(i => i.id === id);
             const p = products.find(prod => prod.id === id);
-            if(delta > 0 && item.quantity >= p.stock) return;
+            if(!item) return;
+
+            if(delta > 0 && item.quantity >= p.stock) {
+                notify("No hay más unidades en stock");
+                return;
+            }
+
             item.quantity += delta;
             if(item.quantity <= 0) cart = cart.filter(i => i.id !== id);
             updateUI();
         }
 
         function updateUI() {
-            localStorage.setItem('kolchawwe_cart_v4', JSON.stringify(cart));
+            localStorage.setItem('kol_cart_gold_v3', JSON.stringify(cart));
             const container = document.getElementById('cart-items');
             const totalEl = document.getElementById('cart-total');
             const badge = document.getElementById('cart-badge');
             
             container.innerHTML = cart.map(i => `
-                <div class="flex gap-6 items-center bg-zinc-900/20 p-6 rounded-2xl border border-zinc-900">
-                    <div class="flex-1">
-                        <h4 class="text-sm font-bold uppercase tracking-widest text-amber-600 mb-1">${i.nombre}</h4>
-                        <p class="text-zinc-500 text-xs">$${i.precio.toLocaleString('es-CL')} c/u</p>
+                <div class="flex justify-between items-center py-4 border-b border-white/5">
+                    <div>
+                        <h4 class="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400">${i.nombre}</h4>
+                        <p class="text-[8px] text-zinc-700 mt-1">$${Number(i.precio).toLocaleString('es-CL')}</p>
                     </div>
-                    <div class="flex items-center bg-black rounded-xl border border-zinc-800">
-                        <button onclick="updateQty(${i.id}, -1)" class="w-10 h-10 hover:text-amber-600 transition">-</button>
-                        <span class="w-8 text-center text-xs font-bold">${i.quantity}</span>
-                        <button onclick="updateQty(${i.id}, 1)" class="w-10 h-10 hover:text-amber-600 transition">+</button>
+                    <div class="flex items-center gap-5">
+                        <button onclick="updateQty(${i.id}, -1)" class="text-zinc-600 hover:text-white text-xs">-</button>
+                        <span class="text-[9px] font-mono text-zinc-400">${i.quantity}</span>
+                        <button onclick="updateQty(${i.id}, 1)" class="text-zinc-600 hover:text-white text-xs">+</button>
                     </div>
                 </div>
             `).join('');
@@ -246,41 +302,27 @@
         async function iniciarPago() {
             const btn = document.getElementById('pay-btn');
             const originalContent = btn.innerHTML;
-            btn.innerHTML = '<div class="loader"></div>';
+            btn.innerHTML = '<div class="loader mx-auto"></div>';
             btn.disabled = true;
 
             try {
-                // Enviamos el carrito completo a tu backend en Render
                 const response = await fetch(`${API_URL}/api/create-preference`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        items: cart.map(i => ({
-                            title: `Kolchawwe ${i.nombre}`,
-                            unit_price: i.precio,
-                            quantity: i.quantity
-                        }))
-                    })
+                    body: JSON.stringify({ items: cart })
                 });
-
-                if (!response.ok) throw new Error('Error en el servidor');
                 
                 const data = await response.json();
-                
-                if (data.init_point) {
-                    window.location.href = data.init_point;
-                } else {
-                    throw new Error('No se recibió el punto de inicio');
-                }
+                if (data.init_point) window.location.href = data.init_point;
+                else throw new Error();
             } catch (error) {
-                console.error("Pago fallido:", error);
-                alert("No pudimos conectar con Mercado Pago. Asegúrate de que tu servidor en Render esté encendido.");
+                notify("Error al conectar con Mercado Pago. Reintenta.");
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
             }
         }
 
-        init();
+        fetchInventory();
     </script>
 </body>
 </html>
