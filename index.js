@@ -1,21 +1,23 @@
 const express = require('express');
 const cors = require('cors');
-const pool = require('./db'); // Tu conector de base de datos
+const pool = require('./db');
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 const app = express();
 
 // --- CONFIGURACIÓN DE MERCADO PAGO ---
-// Reemplaza con tu Access Token real de Mercado Pago
+// REEMPLAZA CON TU ACCESS TOKEN REAL DE MERCADO PAGO CHILE
 const client = new MercadoPagoConfig({ 
     accessToken: 'TU_ACCESS_TOKEN_AQUI' 
 });
 
 app.use(express.json());
-app.use(cors()); // Permite peticiones desde tu tienda index.html
+app.use(cors()); 
 app.use(express.static('public'));
 
-// RUTA 1: Obtener cervezas (La tienda usa esto para el catálogo)
+/**
+ * RUTA: Obtener catálogo de cervezas
+ */
 app.get('/api/cervezas', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM cervezas ORDER BY id ASC');
@@ -26,19 +28,31 @@ app.get('/api/cervezas', async (req, res) => {
     }
 });
 
-// RUTA 2: Crear preferencia de Mercado Pago (ESTA ES LA QUE FALTA)
+/**
+ * RUTA: Crear preferencia de Mercado Pago
+ */
 app.post('/api/create-preference', async (req, res) => {
     try {
-        const { items } = req.body; // El carro que viene desde index.html
+        const data = req.body;
+        let itemsToPay = [];
 
-        // Formatear los productos para Mercado Pago
-        const itemsToPay = items.map(product => ({
-            id: product.id.toString(),
-            title: product.nombre,
-            unit_price: Number(product.precio),
-            quantity: Number(product.quantity),
-            currency_id: 'CLP'
-        }));
+        // Normalizamos la entrada si viene un carrito (items) o un solo producto
+        const rawItems = data.items && Array.isArray(data.items) ? data.items : [data];
+
+        itemsToPay = rawItems.map(item => {
+            if (!item.precio && !item.unit_price) return null;
+            return {
+                id: String(item.id),
+                title: String(item.nombre || item.title),
+                unit_price: Math.round(Number(item.precio || item.unit_price)),
+                quantity: parseInt(item.quantity || 1),
+                currency_id: 'CLP'
+            };
+        }).filter(item => item !== null);
+
+        if (itemsToPay.length === 0) {
+            return res.status(400).json({ error: "No hay productos válidos para pagar" });
+        }
 
         const preference = new Preference(client);
         
@@ -46,43 +60,59 @@ app.post('/api/create-preference', async (req, res) => {
             body: {
                 items: itemsToPay,
                 back_urls: {
-                    success: "https://tu-repositorio.github.io/success", // Cambia por tu URL
-                    failure: "https://tu-repositorio.github.io/failure",
-                    pending: "https://tu-repositorio.github.io/pending"
+                    success: "https://kolchawwe.github.io/success", 
+                    failure: "https://kolchawwe.github.io/failure",
+                    pending: "https://kolchawwe.github.io/pending"
                 },
                 auto_return: "approved",
+                statement_descriptor: "KOLCHAWWE",
             }
         });
 
-        // Enviamos el link de pago (init_point) a la tienda
         res.json({ init_point: response.init_point });
 
     } catch (error) {
-        console.error("Error MP:", error);
-        res.status(500).json({ error: "No se pudo crear la preferencia de pago" });
+        console.error("Error Mercado Pago:", error);
+        res.status(500).json({ 
+            error: "No se pudo crear la preferencia de pago",
+            details: error.message 
+        });
     }
 });
 
-// RUTA 3: Admin - Actualizar stock
+/**
+ * RUTA: Administración de Stock
+ */
 app.put('/api/admin/stock', async (req, res) => {
-    const { id, precio, stock, password } = req.body;
+    const { id, precio, stock, nuevo_stock, password } = req.body;
 
     if (password !== "1234") {
         return res.status(403).json({ error: "Clave incorrecta" });
     }
 
     try {
-        await pool.query(
-            'UPDATE cervezas SET precio = $1, stock = $2 WHERE id = $3',
-            [precio, stock, id]
-        );
-        res.json({ message: "Stock actualizado correctamente" });
+        const cantidadFinal = stock !== undefined ? stock : nuevo_stock;
+        
+        if (precio !== undefined) {
+            await pool.query(
+                'UPDATE cervezas SET precio = $1, stock = $2 WHERE id = $3',
+                [Math.round(precio), cantidadFinal, id]
+            );
+        } else {
+            await pool.query(
+                'UPDATE cervezas SET stock = $1 WHERE id = $2',
+                [cantidadFinal, id]
+            );
+        }
+        
+        res.json({ message: "Inventario actualizado" });
     } catch (err) {
-        res.status(500).json({ error: "Error al actualizar la base de datos" });
+        console.error("Error al actualizar:", err);
+        res.status(500).json({ error: "Error en base de datos" });
     }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor Kolchawwe corriendo en puerto ${PORT}`);
+    console.log(`Servidor Kolchawwe activo en puerto ${PORT}`);
 });
