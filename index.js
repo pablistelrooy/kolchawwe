@@ -1,98 +1,57 @@
-const express = require("express");
-const cors = require("cors");
-const { Pool } = require("pg");
-const { MercadoPagoConfig, Preference } = require("mercadopago");
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const pool = require('./db'); // Importa la conexión configurada en db.js
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use(express.static('public'));
 
-// ESTA LÍNEA ES CRUCIAL: Permite que Render sirva tu index.html y admin.html desde la carpeta /public
-app.use(express.static("public"));
-
-// 1. CONFIGURACIÓN DE BASE DE DATOS (POSTGRESQL)
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-});
-
-// 2. CONFIGURACIÓN DE MERCADO PAGO CON TU TOKEN
-const client = new MercadoPagoConfig({ 
-    accessToken: "APP_USR-1855947821734593-050622-9f50f98fcb9e1820fe4cbaf438ae35af-3385175304" 
-});
-
+// CLAVE DE SEGURIDAD PARA EL PANEL ADMIN
 const CLAVE_ADMIN = "1234";
 
-// --- RUTAS DE LA TIENDA ---
-
-// Obtener todas las cervezas de la DB
-app.get("/api/cervezas", async (req, res) => {
+/**
+ * ENDPOINT: Obtener todas las cervezas desde Postgres
+ */
+app.get('/api/cervezas', async (req, res) => {
     try {
-        const result = await pool.query("SELECT id, nombre, precio, stock FROM cervezas ORDER BY id ASC");
+        const result = await pool.query('SELECT * FROM cervezas ORDER BY id ASC');
         res.json(result.rows);
     } catch (err) {
-        console.error("Error en DB:", err);
-        res.status(500).json({ error: "Error al conectar con la base de datos" });
+        console.error("Error al obtener productos:", err);
+        res.status(500).json({ error: "Error en el servidor de base de datos" });
     }
 });
 
-// Crear preferencia de Mercado Pago
-app.post("/api/create-preference", async (req, res) => {
-    try {
-        const { items } = req.body; 
-
-        if (!items || items.length === 0) {
-            return res.status(400).json({ error: "El carrito está vacío" });
-        }
-
-        const preference = new Preference(client);
-        const result = await preference.create({
-            body: {
-                items: items.map(item => ({
-                    id: item.id.toString(),
-                    title: item.nombre || item.title,
-                    unit_price: Number(item.precio || item.unit_price),
-                    quantity: Number(item.quantity),
-                    currency_id: "CLP"
-                })),
-                back_urls: {
-                    success: "https://tu-sitio.com/success", 
-                    failure: "https://tu-sitio.com/failure",
-                    pending: "https://tu-sitio.com/pending"
-                },
-                auto_return: "approved",
-            }
-        });
-
-        res.json({ id: result.id, init_point: result.init_point });
-    } catch (error) {
-        console.error("Error Mercado Pago Detail:", error);
-        res.status(500).json({ error: "Error con Mercado Pago." });
-    }
-});
-
-// --- RUTAS DE ADMINISTRACIÓN ---
-app.put("/api/admin/stock", async (req, res) => {
+/**
+ * ENDPOINT: Actualizar Stock y Precio (Admin)
+ */
+app.put('/api/admin/stock', async (req, res) => {
     const { id, precio, stock, password } = req.body;
 
     if (password !== CLAVE_ADMIN) {
-        return res.status(401).json({ error: "Contraseña incorrecta" });
+        return res.status(401).json({ error: "Clave de administración incorrecta" });
     }
 
     try {
-        await pool.query(
-            "UPDATE cervezas SET precio = $1, stock = $2 WHERE id = $3",
-            [precio, stock, id]
-        );
-        res.json({ message: "Actualizado correctamente" });
+        const query = 'UPDATE cervezas SET precio = $1, stock = $2 WHERE id = $3 RETURNING *';
+        const values = [parseInt(precio), parseInt(stock), id];
+        const result = await pool.query(query, values);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Variedad no encontrada" });
+        }
+
+        res.json({ message: "Stock actualizado correctamente", data: result.rows[0] });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Error al actualizar en la base de datos" });
+        console.error("Error al actualizar stock:", err);
+        res.status(500).json({ error: "Error al procesar la actualización" });
     }
 });
 
-// Iniciar servidor
+// Iniciar Servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor Kolchawwe activo en puerto ${PORT}`);
+    console.log(`Servidor Kolchawwe operativo en puerto ${PORT}`);
 });
