@@ -1,255 +1,284 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  onSnapshot, 
-  updateDoc, 
-  addDoc, 
-  query,
-  serverTimestamp 
-} from 'firebase/firestore';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kolchawwe | Cerveza Artesanal San Fernando</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SDK de Mercado Pago -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Montserrat:wght@300;400;600&display=swap');
 
-// Configuración de Firebase (inyectada por el entorno)
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'kolchawwe-default';
-
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [cart, setCart] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState({ show: false, msg: '', type: 'info' });
-
-  // 1. Autenticación Anónima (Requerida para Firestore)
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        await signInAnonymously(auth);
-      } catch (error) {
-        console.error("Error de Auth:", error);
-      }
-    };
-    initAuth();
-    return onAuthStateChanged(auth, setUser);
-  }, []);
-
-  // 2. Escuchar cambios en la Base de Datos (Tiempo Real)
-  useEffect(() => {
-    if (!user) return;
-
-    const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'productos');
-    
-    // Suscripción a tiempo real
-    const unsubscribe = onSnapshot(productsRef, (snapshot) => {
-      const prods = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
-      // Si la colección está vacía, inicializamos con datos semilla (Solo la primera vez)
-      if (prods.length === 0) {
-        seedDatabase();
-      } else {
-        setProducts(prods);
-        setLoading(false);
-      }
-    }, (error) => {
-      showToast("Error al conectar con la base de datos", "error");
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [user]);
-
-  const seedDatabase = async () => {
-    const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'productos');
-    const seedData = [
-      { nombre: "Ambar Ale", precio: 3500, stock: 50, descripcion: "Equilibrio entre maltas y lúpulos." },
-      { nombre: "Stout Noble", precio: 3800, stock: 30, descripcion: "Notas a café y chocolate amargo." },
-      { nombre: "Pale Ale", precio: 3500, stock: 25, descripcion: "Aromática y refrescante." }
-    ];
-    for (const p of seedData) {
-      await addDoc(productsRef, p);
-    }
-  };
-
-  const showToast = (msg, type = 'info') => {
-    setToast({ show: true, msg, type });
-    setTimeout(() => setToast({ show: false, msg: '', type: 'info' }), 3000);
-  };
-
-  const addToCart = (product) => {
-    if (product.stock <= 0) {
-      showToast("Sin stock disponible", "error");
-      return;
-    }
-    
-    setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        if (existing.qty >= product.stock) {
-          showToast("No hay más unidades disponibles", "error");
-          return prev;
+        :root {
+            --brand-gold: #b38e44;
+            --brand-cream: #f4e9d5;
+            --brand-dark: #1a1613;
         }
-        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
-      }
-      return [...prev, { ...product, qty: 1 }];
-    });
-    showToast(`${product.nombre} añadido`);
-    setIsCartOpen(true);
-  };
 
-  const removeFromCart = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  };
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--brand-dark);
+            color: var(--brand-cream);
+            scroll-behavior: smooth;
+        }
 
-  const total = cart.reduce((acc, item) => acc + (item.precio * item.qty), 0);
+        h1, h2, h3, .brand-font {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.05em;
+        }
 
-  const processPayment = async () => {
-    if (cart.length === 0) return;
-    
-    try {
-      // Registramos el intento de compra en Firestore
-      const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'pedidos');
-      await addDoc(ordersRef, {
-        items: cart,
-        total: total,
-        status: 'pendiente',
-        timestamp: serverTimestamp(),
-        userId: user.uid
-      });
+        .hero-section {
+            background: linear-gradient(rgba(26, 22, 19, 0.9), rgba(26, 22, 19, 0.9)), 
+                        url('https://images.unsplash.com/photo-1571767490048-222875c45e8e?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+        }
 
-      showToast("Pedido registrado. Redirigiendo a pago...", "success");
-      // Aquí se integraría el SDK de Mercado Pago apuntando al preferenceId generado
-    } catch (e) {
-      showToast("Error al procesar el pedido", "error");
-    }
-  };
+        .label-card {
+            background-color: #110f0d;
+            border: 1px solid #332d28;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 420px;
+        }
 
-  return (
-    <div className="min-h-screen bg-zinc-900 text-zinc-100 font-sans">
-      {/* Toast Notification */}
-      {toast.show && (
-        <div className={`fixed top-10 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-2xl shadow-2xl font-bold uppercase text-xs border transition-all ${
-          toast.type === 'error' ? 'bg-red-600 border-red-400' : 'bg-amber-500 text-black border-amber-400'
-        }`}>
-          {toast.msg}
+        .label-card:hover {
+            border-color: var(--brand-gold);
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .logo-frame {
+            border: 2px solid var(--brand-gold);
+            padding: 8px;
+            background-color: var(--brand-dark);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25d366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 15px rgba(0,0,0,0.4);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-order {
+            background-color: var(--brand-gold);
+            color: black;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-order:hover {
+            background-color: #d4ac5d;
+            transform: scale(1.02);
+        }
+
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid #332d28;
+            border-bottom-color: var(--brand-gold);
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-btn {
+            opacity: 0.6;
+            cursor: wait;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- WhatsApp Flotante -->
+    <a href="https://wa.me/56943409132" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Navegación -->
+    <nav class="fixed w-full z-50 bg-[#110f0d]/95 backdrop-blur-md border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold tracking-[0.2em] text-brand-gold">KOLCHAWWE</div>
+        <div class="hidden md:flex space-x-8 text-[10px] font-bold uppercase tracking-[0.3em]">
+            <a href="#inicio" class="hover:text-brand-gold transition">Inicio</a>
+            <a href="#bodega" class="hover:text-brand-gold transition">Colección</a>
+            <a href="#contacto" class="hover:text-brand-gold transition">Contacto</a>
         </div>
-      )}
+    </nav>
 
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-md border-b border-white/5 z-40 px-8 py-4 flex justify-between items-center">
-        <div>
-          <h1 className="text-xl font-black italic text-amber-500 uppercase tracking-tighter">Kolchawwe</h1>
-          <p className="text-[7px] tracking-[0.3em] text-zinc-500 uppercase">Base de datos: Conectada</p>
-        </div>
-        <button 
-          onClick={() => setIsCartOpen(true)}
-          className="relative p-3 bg-zinc-800 rounded-xl hover:bg-amber-500 hover:text-black transition-all"
-        >
-          <i className="fas fa-shopping-cart"></i>
-          {cart.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-white text-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
-              {cart.reduce((a, b) => a + b.qty, 0)}
-            </span>
-          )}
-        </button>
-      </nav>
-
-      {/* Hero */}
-      <header className="h-[40vh] flex flex-col items-center justify-center bg-gradient-to-b from-black to-zinc-900 border-b border-white/5">
-        <h2 className="text-5xl font-black italic uppercase text-white mb-2">Catálogo Online</h2>
-        <div className="h-1 w-20 bg-amber-500 rounded-full"></div>
-      </header>
-
-      {/* Product Grid */}
-      <main className="max-w-7xl mx-auto px-8 py-16">
-        {loading ? (
-          <div className="flex flex-col items-center py-20 opacity-30">
-            <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-xs uppercase tracking-widest">Sincronizando Inventario...</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map(product => (
-              <div key={product.id} className="bg-black border border-white/5 rounded-[2rem] p-8 flex flex-col justify-between hover:border-amber-500/50 transition-all group">
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Stock: {product.stock}</span>
-                    {product.stock <= 5 && product.stock > 0 && <span className="text-[9px] text-amber-500 font-bold uppercase">¡Casi agotado!</span>}
-                  </div>
-                  <h3 className="text-2xl font-black italic text-white uppercase mb-2">{product.nombre}</h3>
-                  <p className="text-zinc-400 text-sm mb-6 leading-relaxed">{product.descripcion}</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-black text-white italic mb-6">${product.precio?.toLocaleString('es-CL')}</p>
-                  <button 
-                    disabled={product.stock <= 0}
-                    onClick={() => addToCart(product)}
-                    className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${
-                      product.stock <= 0 
-                        ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' 
-                        : 'bg-amber-500 text-black hover:bg-white hover:scale-[1.02]'
-                    }`}
-                  >
-                    {product.stock <= 0 ? 'Agotada' : 'Añadir al Carro'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
-
-      {/* Cart Drawer */}
-      <div className={`fixed inset-y-0 right-0 w-full max-w-md bg-black border-l border-white/10 z-50 transform transition-transform duration-500 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="h-full flex flex-col p-8">
-          <div className="flex justify-between items-center mb-10">
-            <h2 className="text-3xl font-black italic uppercase text-amber-500">Tu Pedido</h2>
-            <button onClick={() => setIsCartOpen(false)} className="text-zinc-500 hover:text-white text-2xl">&times;</button>
-          </div>
-
-          <div className="flex-grow overflow-y-auto space-y-4">
-            {cart.length === 0 ? (
-              <div className="text-center py-20 opacity-20">
-                <i className="fas fa-beer text-5xl mb-4"></i>
-                <p className="uppercase text-xs font-bold tracking-widest">El carro está vacío</p>
-              </div>
-            ) : (
-              cart.map(item => (
-                <div key={item.id} className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-2xl border border-white/5">
-                  <div>
-                    <h4 className="text-sm font-bold text-white uppercase">{item.nombre}</h4>
-                    <p className="text-xs text-zinc-500">{item.qty} x ${item.precio?.toLocaleString('es-CL')}</p>
-                  </div>
-                  <button onClick={() => removeFromCart(item.id)} className="text-red-500/50 hover:text-red-500 transition">
-                    <i className="fas fa-trash"></i>
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
-
-          {cart.length > 0 && (
-            <div className="mt-8 border-t border-white/5 pt-8">
-              <div className="flex justify-between items-end mb-6">
-                <span className="text-xs uppercase text-zinc-500 font-bold tracking-widest">Total</span>
-                <span className="text-4xl font-black italic text-white">${total.toLocaleString('es-CL')}</span>
-              </div>
-              <button 
-                onClick={processPayment}
-                className="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-3"
-              >
-                <i className="fas fa-credit-card"></i> Pagar con Mercado Pago
-              </button>
+    <!-- Hero -->
+    <header id="inicio" class="hero-section min-h-screen flex items-center justify-center text-center px-4 pt-20">
+        <div class="max-w-4xl flex flex-col items-center">
+            <div class="logo-frame mb-8 shadow-2xl">
+                <img src="Logo Kolchawwe.png" alt="Logo Kolchawwe" class="w-64 md:w-80 rounded-lg" onerror="this.src='https://via.placeholder.com/400x300?text=KOLCHAWWE+BREWING';">
             </div>
-          )}
+            <p class="text-brand-gold tracking-[0.4em] uppercase text-xs md:text-sm mt-2 font-bold">San Fernando · Valle de Colchagua</p>
+            <h1 class="mt-8 text-2xl md:text-4xl italic font-light opacity-90 leading-relaxed">"Nobleza salvaje embotellada <br>en el corazón del valle"</h1>
         </div>
-      </div>
-    </div>
-  );
-}
+    </header>
+
+    <!-- Sección de Bodega -->
+    <section id="bodega" class="py-24 px-6 bg-[#0f0d0b]">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-5xl font-bold mb-4 uppercase tracking-tighter">Colección de Bodega</h2>
+            <p class="text-[10px] uppercase tracking-[0.5em] text-brand-gold opacity-60 font-bold">DISPONIBILIDAD EN TIEMPO REAL</p>
+            <div class="w-20 h-px bg-brand-gold mx-auto mt-8 opacity-30"></div>
+        </div>
+
+        <div id="loading-state" class="flex flex-col items-center py-20">
+            <span class="loader-spinner mb-6"></span>
+            <p class="text-[10px] uppercase tracking-[0.3em] opacity-40">Consultando stock...</p>
+        </div>
+
+        <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 container mx-auto hidden">
+            <!-- Renderizado dinámico -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contacto" class="bg-[#0a0908] pt-20 pb-10 border-t border-[#1a1613]">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-brand-gold mb-8 italic uppercase">KOLCHAWWE</h2>
+            <div class="flex justify-center space-x-10 my-12">
+                <a href="https://wa.me/56943409132" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.instagram.com/kolchawwe/" class="text-2xl hover:text-brand-gold transition"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p class="text-[9px] opacity-20 tracking-[0.6em] uppercase">© 2026 KOLCHAWWE BREWING CO.</p>
+        </div>
+    </footer>
+
+    <script>
+        // URL del Backend en Render
+        const BASE_URL = 'https://kolchawwe-web.onrender.com';
+        const API_URL = `${BASE_URL}/api/cervezas`;
+        
+        // Carga de Inventario
+        async function loadInventory() {
+            try {
+                const response = await fetch(API_URL);
+                const cervezas = await response.json();
+                renderCervezas(cervezas);
+            } catch (err) {
+                document.getElementById('loading-state').innerHTML = `<p class="text-red-500 uppercase text-[10px] tracking-widest">Error al conectar con la bodega.</p>`;
+            }
+        }
+
+        function renderCervezas(items) {
+            const grid = document.getElementById('products-grid');
+            const loader = document.getElementById('loading-state');
+            loader.classList.add('hidden');
+            grid.classList.remove('hidden');
+            grid.innerHTML = '';
+
+            items.forEach(beer => {
+                const outOfStock = beer.stock <= 0;
+                const priceFormatted = new Intl.NumberFormat('es-CL', { 
+                    style: 'currency', currency: 'CLP', maximumFractionDigits: 0 
+                }).format(beer.precio);
+
+                const card = document.createElement('div');
+                card.className = `label-card p-10 text-center relative ${outOfStock ? 'opacity-40 grayscale' : ''}`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="absolute top-0 right-0 p-3 text-[8px] font-bold tracking-widest border-l border-b border-[#332d28] ${outOfStock ? 'text-red-500' : 'text-brand-gold'}">
+                            ${outOfStock ? 'SIN STOCK' : 'DISPONIBLE'}
+                        </div>
+                        <h3 class="text-2xl text-brand-gold mb-3 uppercase tracking-wider">${beer.nombre}</h3>
+                        <p class="text-[9px] uppercase tracking-[0.3em] mb-6 opacity-40">Cepa San Fernando</p>
+                        <div class="w-8 h-px bg-brand-gold/30 mx-auto mb-10"></div>
+                        <div class="mb-8">
+                            <span class="text-4xl font-light text-white">${priceFormatted}</span>
+                        </div>
+                        <p class="text-[8px] opacity-40 uppercase tracking-[0.4em] mb-4">Stock Actual: ${beer.stock} unidades</p>
+                    </div>
+                    <div class="mt-8">
+                        ${outOfStock ? 
+                            `<button disabled class="w-full py-4 bg-zinc-900 text-zinc-700 rounded uppercase text-[9px] font-bold tracking-widest">Agotado</button>` :
+                            `<button id="btn-${beer.id}" onclick="iniciarPago(${beer.id}, '${beer.nombre}', ${beer.precio})" class="btn-order w-full">Comprar Ahora</button>`
+                        }
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Lógica de Pago con Mercado Pago
+        async function iniciarPago(id, nombre, precio) {
+            const btn = document.getElementById(`btn-${id}`);
+            const originalText = btn.innerText;
+            
+            try {
+                btn.innerText = "PREPARANDO...";
+                btn.classList.add('loading-btn');
+
+                // IMPORTANTE: Asegúrate de que el backend tenga esta ruta habilitada
+                const response = await fetch(`${BASE_URL}/api/create-preference`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: id,
+                        title: `Kolchawwe ${nombre}`,
+                        unit_price: precio,
+                        quantity: 1
+                    })
+                });
+
+                if (!response.ok) throw new Error('Error en servidor de pagos');
+
+                const preference = await response.json();
+
+                if (preference.init_point) {
+                    window.location.href = preference.init_point;
+                } else {
+                    throw new Error("Preferencia inválida");
+                }
+
+            } catch (error) {
+                console.error("Error Mercado Pago:", error);
+                btn.innerText = "ERROR DE CONEXIÓN";
+                btn.style.backgroundColor = "#721c24";
+                btn.style.color = "white";
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('loading-btn');
+                    btn.style.backgroundColor = "";
+                    btn.style.color = "";
+                }, 3000);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadInventory);
+    </script>
+</body>
+</html>
