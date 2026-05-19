@@ -56,9 +56,9 @@ app.post("/api/create-preference", async (req, res) => {
                     currency_id: "CLP"
                 })),
                 back_urls: {
-                    success: "https://tu-sitio.com/success", 
-                    failure: "https://tu-sitio.com/failure",
-                    pending: "https://tu-sitio.com/pending"
+                    success: "https://kolchawwe-web.onrender.com//success", 
+                    failure: "https://kolchawwe-web.onrender.com//failure",
+                    pending: "https://kolchawwe-web.onrender.com//pending"
                 },
                 auto_return: "approved",
             }
