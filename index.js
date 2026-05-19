@@ -96,3 +96,38 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor Kolchawwe activo en puerto ${PORT}`);
 });
+
+app.post("/api/checkout", async (req, res) => {
+    try {
+        const items = req.body.items;
+        
+        // Validamos que los items existan
+        if (!items || !Array.isArray(items)) {
+            return res.status(400).json({ error: "Datos de productos inválidos" });
+        }
+
+        const preference = new Preference(client);
+        
+        const result = await preference.create({
+            body: {
+                items: items.map(item => ({
+                    title: item.nombre || "Producto",
+                    unit_price: Number(item.precio || item.unit_price || 0),
+                    quantity: Number(item.quantity || 1),
+                    currency_id: "CLP"
+                })),
+                back_urls: {
+                    success: "https://colchagua.onrender.com/", 
+                    failure: "https://colchagua.onrender.com/",
+                    pending: "https://colchagua.onrender.com/"
+                },
+                auto_return: "approved",
+            }
+        });
+
+        res.json({ id: result.id, init_point: result.init_point });
+    } catch (error) {
+        console.error("Error en Mercado Pago:", error);
+        res.status(500).json({ error: "Error al procesar el pago" });
+    }
+});
