@@ -5,8 +5,9 @@ const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 
 const app = express();
 
-// Configuración de CORS más permisiva para evitar bloqueos
-app.use(cors({ origin: "*" })); 
+// Configuración avanzada de CORS para evitar el error de red
+app.use(cors());
+app.options('*', cors()); 
 app.use(express.json());
 
 // Servir archivos estáticos
@@ -25,7 +26,7 @@ const client = new MercadoPagoConfig({
 
 const CLAVE_ADMIN = "1234";
 
-// --- RUTA DEL WEBHOOK (Para descontar stock automáticamente) ---
+// --- RUTA DEL WEBHOOK ---
 app.post("/webhook", async (req, res) => {
     const payment = req.query;
 
@@ -36,7 +37,6 @@ app.post("/webhook", async (req, res) => {
 
             if (paymentData.status === 'approved') {
                 const items = paymentData.additional_info.items; 
-
                 for (const item of items) {
                     await pool.query(
                         "UPDATE cervezas SET stock = stock - $1 WHERE id = $2",
@@ -71,8 +71,8 @@ app.post("/api/crear-preferencia", async (req, res) => {
         });
         res.json({ id: result.id, init_point: result.init_point });
     } catch (error) {
-        console.error("Error creando preferencia:", error);
-        res.status(500).json({ error: "No se pudo conectar con Mercado Pago." });
+        console.error("Error detallado creando preferencia:", error);
+        res.status(500).json({ error: error.message || "Error al conectar con Mercado Pago." });
     }
 });
 
