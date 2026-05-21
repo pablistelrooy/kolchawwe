@@ -18,7 +18,7 @@ const pool = new Pool({
 
 // 2. CONFIGURACIÓN DE MERCADO PAGO CON TU TOKEN
 const client = new MercadoPagoConfig({ 
-    accessToken: "APP_USR-6243179757932439-051819-fbc10886bcfae80699d1d0862fe16b3c-3409594471" 
+    accessToken: "APP_USR-1855947821734593-050622-9f50f98fcb9e1820fe4cbaf438ae35af-3385175304" 
 });
 
 const CLAVE_ADMIN = "1234";
@@ -56,9 +56,9 @@ app.post("/api/create-preference", async (req, res) => {
                     currency_id: "CLP"
                 })),
                 back_urls: {
-                    success: "https://kolchawwe-web.onrender.com//success", 
-                    failure: "https://kolchawwe-web.onrender.com//failure",
-                    pending: "https://kolchawwe-web.onrender.com//pending"
+                    success: "https://tu-sitio.com/success", 
+                    failure: "https://tu-sitio.com/failure",
+                    pending: "https://tu-sitio.com/pending"
                 },
                 auto_return: "approved",
             }
@@ -97,37 +97,52 @@ app.listen(PORT, () => {
     console.log(`Servidor Kolchawwe activo en puerto ${PORT}`);
 });
 
-app.post("/api/checkout", async (req, res) => {
-    try {
-        const items = req.body.items;
-        
-        // Validamos que los items existan
-        if (!items || !Array.isArray(items)) {
-            return res.status(400).json({ error: "Datos de productos inválidos" });
-        }
 
-        const preference = new Preference(client);
-        
-        const result = await preference.create({
-            body: {
-                items: items.map(item => ({
-                    title: item.nombre || "Producto",
-                    unit_price: Number(item.precio || item.unit_price || 0),
-                    quantity: Number(item.quantity || 1),
-                    currency_id: "CLP"
-                })),
-                back_urls: {
-                    success: "https://kolchawwe-web.onrender.com//", 
-                    failure: "https://kolchawwe-web.onrender.com//",
-                    pending: "https://kolchawwe-web.onrender.com//"
-                },
-                auto_return: "approved",
+// --- WEBHOOK PARA RECIBIR NOTIFICACIONES DE PAGO ---
+app.post("/webhook", async (req, res) => {
+    const payment = req.query;
+
+    if (payment.topic === "payment") {
+        try {
+            // 1. Obtener detalles del pago desde Mercado Pago
+            const paymentData = await new MercadoPagoConfig({ accessToken: "TU_ACCESS_TOKEN" }).payment.get({ id: payment.id });
+
+            if (paymentData.status === 'approved') {
+                // 2. Extraer los items y cantidades (esto debe venir en el 'external_reference' o 'metadata')
+                const items = paymentData.additional_info.items; 
+
+                // 3. Descontar stock en DB
+                for (const item of items) {
+                    await pool.query(
+                        "UPDATE cervezas SET stock = stock - $1 WHERE id = $2",
+                        [item.quantity, item.id]
+                    );
+                }
             }
-        });
+        } catch (err) {
+            console.error("Error en Webhook:", err);
+        }
+    }
+    res.status(200).send("OK");
+});
+```
 
-        res.json({ id: result.id, init_point: result.init_point });
-    } catch (error) {
-        console.error("Error en Mercado Pago:", error);
-        res.status(500).json({ error: "Error al procesar el pago" });
+### 2. Modificar la creación de la Preferencia (`index.js`)
+Para que el webhook sepa qué descontar, debes pasar el ID del producto y la cantidad dentro de la preferencia de pago.
+
+```javascript
+// En tu ruta app.post("/api/crear-preferencia")
+const preference = new Preference(client);
+const result = await preference.create({
+    body: {
+        items: req.body.items.map(item => ({
+            id: String(item.id), // Asegura que el ID sea string
+            title: item.nombre,
+            unit_price: Number(item.precio),
+            quantity: Number(item.quantity),
+            currency_id: "CLP"
+        })),
+        // Es vital que el back-end reciba el ID real de tu DB
     }
 });
+
