@@ -42,7 +42,7 @@ const handlerPreferencia = async (req, res) => {
     }
 };
 
-// Definimos ambas rutas para evitar el error 404
+// Definimos ambas rutas explícitamente para evitar el error 404
 app.post("/api/crear-preferencia", handlerPreferencia);
 app.post("/api/create-preference", handlerPreferencia);
 
