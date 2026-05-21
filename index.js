@@ -43,7 +43,7 @@ const handlerPreferencia = async (req, res) => {
     }
 };
 
-// Rutas explícitas
+// Rutas explícitas: Montadas ANTES de los archivos estáticos
 app.post("/api/crear-preferencia", handlerPreferencia);
 app.post("/api/create-preference", handlerPreferencia);
 
