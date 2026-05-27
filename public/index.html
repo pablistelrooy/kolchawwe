@@ -727,37 +727,41 @@
 	      // Dentro de tu archivo public/index.html, busca la función procederAlPago
 
 
-	async function procederAlPago() {
-	    const datosCliente = {
-        	nombre: document.getElementById('shipping-name').value.trim(),
-	        telefono: document.getElementById('shipping-phone').value.trim(),
-        	rut: document.getElementById('shipping-rut').value.trim(),
-        	direccion: document.getElementById('shipping-address').value.trim()
-   	 };
+	// En tu public/index.html, busca esta función y actualízala:
 
-	    console.log("Datos a enviar:", datosCliente); // <-- ESTO DEBE APARECER EN CONSOLA
+async function procederAlPago() {
+    // 1. Validar edad
+    const esMayor = document.getElementById('checkbox-edad').checked;
+    if (!esMayor) {
+        alert("Debes ser mayor de edad para continuar.");
+        return;
+    }
 
-	    try {
-        	const response = await fetch(`${API_URL}/api/registrar-cliente`, {
-            	method: 'POST',
-            	headers: { 'Content-Type': 'application/json' },
-            	body: JSON.stringify(datosCliente)
-	        });
+    // 2. Guardar datos en BD (El guardado previo que querías)
+    const datosCliente = {
+        nombre: document.getElementById('shipping-name').value,
+        telefono: document.getElementById('shipping-phone').value,
+        rut: document.getElementById('shipping-rut').value,
+        direccion: document.getElementById('shipping-address').value
+    };
 
-	        const resultado = await response.json();
-        	console.log("Respuesta del servidor:", resultado); // <-- ESTO NOS DIRÁ EL ERROR REAL
+    try {
+        // Enviar datos antes de iniciar el pago
+        await fetch(`${API_URL}/api/registrar-cliente`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosCliente)
+        });
+        
+        // 3. SI EL GUARDADO FUE EXITOSO, llamamos a la función que inicia el pago
+        // Esta función es la que YA tienes y que gestiona el pago de MP
+        crearPreferenciaYPagar(); 
 
-	        if (response.ok) {
-        	    alert("¡Datos guardados con éxito!");
-            	// Iniciar pago...
-       	 	} else {
-            	alert("Error del servidor: " + resultado.error);
-        	}
-    	} catch (error) {
-        	console.error("Error al conectar con la API:", error);
-    	}
-	}
-
+    } catch (error) {
+        console.error("Error al guardar cliente:", error);
+        alert("Hubo un problema registrando tus datos. Inténtalo de nuevo.");
+    }
+}
 
 
 
