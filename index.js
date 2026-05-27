@@ -24,11 +24,14 @@ const CLAVE_ADMIN = "1234";
 const handlerPreferencia = async (req, res) => {
     try {
         const items = req.body.items;
-        // Validación previa de stock antes de ir a Mercado Pago
+        // Validación previa de stock
         for (const item of items) {
-            const result = await pool.query("SELECT stock FROM cervezas WHERE id = $1", [item.id]);
-            if (result.rows.length === 0 || result.rows[0].stock < item.quantity) {
-                return res.status(400).json({ error: `Stock insuficiente para ${item.title}` });
+            // Solo validamos stock si el ID no es SHIPPING_FEE
+            if (item.id !== "SHIPPING_FEE") {
+                const result = await pool.query("SELECT stock FROM cervezas WHERE id = $1", [item.id]);
+                if (result.rows.length === 0 || result.rows[0].stock < item.quantity) {
+                    return res.status(400).json({ error: `Stock insuficiente para ${item.title}` });
+                }
             }
         }
 
@@ -55,23 +58,23 @@ const handlerPreferencia = async (req, res) => {
 app.post("/api/crear-preferencia", handlerPreferencia);
 app.post("/api/create-preference", handlerPreferencia);
 
-// --- WEBHOOK: ESCUCHA PAGOS EXITOSOS Y DESCUENTA STOCK ---
+// --- WEBHOOK CORREGIDO ---
 app.post("/webhook", async (req, res) => {
     const { data, type } = req.body;
     
-    // Mercado Pago envía eventos tipo 'payment'
     if (type === "payment" && data && data.id) {
         try {
             const payment = new Payment(client);
             const paymentData = await payment.get({ id: data.id });
 
-            // Solo descontamos si el pago fue aprobado
             if (paymentData.status === 'approved') {
-                const items = paymentData.additional_info.items;
+                const items = paymentData.additional_info?.items || [];
                 
                 for (const item of items) {
-                    // El ID de SHIPPING_FEE es interno de MP, lo ignoramos para stock
-                    if (item.id !== "SHIPPING_FEE") {
+                    // Ignoramos cargos de envío y validamos que el ID sea numérico (ID de producto)
+                    const esProductoValido = item.id && item.id !== "SHIPPING_FEE" && !isNaN(item.id);
+                    
+                    if (esProductoValido) {
                         await pool.query(
                             "UPDATE cervezas SET stock = stock - $1 WHERE id = $2", 
                             [item.quantity, item.id]
@@ -84,7 +87,7 @@ app.post("/webhook", async (req, res) => {
             console.error("Error al procesar el webhook:", error);
         }
     }
-    // Responder 200 rápido es obligatorio para Mercado Pago
+    // Siempre respondemos 200 para evitar que Mercado Pago reintente infinitamente
     res.sendStatus(200);
 });
 
@@ -109,5 +112,5 @@ app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor de Kolchawwe activo en puerto ${PORT}`);
+    console.log(`Servidor activo en puerto ${PORT}`);
 });
