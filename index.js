@@ -15,7 +15,7 @@ const pool = new Pool({
 
 // Configuración Mercado Pago
 const client = new MercadoPagoConfig({ 
-    accessToken: "APP_USR-1855947821734593-050622-9f50f98fcb9e1820fe4cbaf438ae35af-3385175304" 
+    accessToken: "APP_USR-6243179757932439-051819-fbc10886bcfae80699d1d0862fe16b3c-3409594471" 
 });
 
 const CLAVE_ADMIN = "1234";
