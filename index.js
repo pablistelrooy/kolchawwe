@@ -45,6 +45,12 @@ const handlerPreferencia = async (req, res) => {
                     quantity: Number(item.quantity),
                     currency_id: "CLP"
                 })),
+                // Definimos las URLs de retorno requeridas por Mercado Pago
+                back_urls: {
+                    success: "https://kolchawwe-web.onrender.com/success",
+                    failure: "https://kolchawwe-web.onrender.com/failure",
+                    pending: "https://kolchawwe-web.onrender.com/pending"
+                },
                 auto_return: "approved"
             }
         });
@@ -71,7 +77,7 @@ app.post("/webhook", async (req, res) => {
                 const items = paymentData.additional_info?.items || [];
                 
                 for (const item of items) {
-                    // Ignoramos cargos de envío y validamos que el ID sea numérico (ID de producto)
+                    // Ignoramos cargos de envío y validamos que el ID sea numérico
                     const esProductoValido = item.id && item.id !== "SHIPPING_FEE" && !isNaN(item.id);
                     
                     if (esProductoValido) {
@@ -87,7 +93,6 @@ app.post("/webhook", async (req, res) => {
             console.error("Error al procesar el webhook:", error);
         }
     }
-    // Siempre respondemos 200 para evitar que Mercado Pago reintente infinitamente
     res.sendStatus(200);
 });
 
