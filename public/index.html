@@ -725,45 +725,38 @@
 
 
 	      // Dentro de tu archivo public/index.html, busca la función procederAlPago
-async function procederAlPago() {
-    const datosCliente = {
-        nombre: document.getElementById('shipping-name').value.trim(),
-        telefono: document.getElementById('shipping-phone').value.trim(),
-        rut: document.getElementById('shipping-rut').value.trim(),
-        direccion: document.getElementById('shipping-address').value.trim()
-    };
-
-    if (!datosCliente.nombre || !datosCliente.rut || !datosCliente.direccion) {
-        alert("Faltan datos obligatorios.");
-        return;
-    }
-
-    try {
-        console.log("Enviando datos a:", `${API_URL}/api/registrar-cliente`);
-        
-        const response = await fetch(`${API_URL}/api/registrar-cliente`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datosCliente)
-        });
-
-        const resultado = await response.json();
-        
-        if (response.ok) {
-            console.log("Éxito:", resultado);
-            alert("Datos guardados con éxito.");
-            // INICIAR MERCADO PAGO AQUÍ SI DESEAS
-        } else {
-            console.error("Error del servidor:", resultado);
-            alert("Error al guardar: " + (resultado.error || "Desconocido"));
-        }
-    } catch (error) {
-        console.error("Error de conexión:", error);
-        alert("No se pudo conectar con el servidor. Revisa tu internet o la URL del API.");
-    }
-}
 
 
+	async function procederAlPago() {
+	    const datosCliente = {
+        	nombre: document.getElementById('shipping-name').value.trim(),
+	        telefono: document.getElementById('shipping-phone').value.trim(),
+        	rut: document.getElementById('shipping-rut').value.trim(),
+        	direccion: document.getElementById('shipping-address').value.trim()
+   	 };
+
+	    console.log("Datos a enviar:", datosCliente); // <-- ESTO DEBE APARECER EN CONSOLA
+
+	    try {
+        	const response = await fetch(`${API_URL}/api/registrar-cliente`, {
+            	method: 'POST',
+            	headers: { 'Content-Type': 'application/json' },
+            	body: JSON.stringify(datosCliente)
+	        });
+
+	        const resultado = await response.json();
+        	console.log("Respuesta del servidor:", resultado); // <-- ESTO NOS DIRÁ EL ERROR REAL
+
+	        if (response.ok) {
+        	    alert("¡Datos guardados con éxito!");
+            	// Iniciar pago...
+       	 	} else {
+            	alert("Error del servidor: " + resultado.error);
+        	}
+    	} catch (error) {
+        	console.error("Error al conectar con la API:", error);
+    	}
+	}
 
 
 
