@@ -727,47 +727,46 @@
 	      // Dentro de tu archivo public/index.html, busca la función procederAlPago
 
 	async function procederAlPago() {
-	    // 1. Recolectar datos del formulario
-	    const datosCliente = {
-	        nombre: document.getElementById('shipping-name').value,
-	        telefono: document.getElementById('shipping-phone').value,
-	        rut: document.getElementById('shipping-rut').value, // Nuevo campo RUT
-	        direccion: document.getElementById('shipping-address').value
-	    };
+    // 1. Recolectar datos del formulario
+    const datosCliente = {
+        nombre: document.getElementById('shipping-name').value.trim(),
+        telefono: document.getElementById('shipping-phone').value.trim(),
+        rut: document.getElementById('shipping-rut').value.trim(),
+        direccion: document.getElementById('shipping-address').value.trim()
+    };
 
-	    // 2. Validar que no falte nada
-	    if (!datosCliente.nombre || !datosCliente.rut || !datosCliente.direccion) {
-	        alert("Por favor completa Nombre, RUT y Dirección");
-	        return;
-	    }
+    // 2. Validación simple
+    if (!datosCliente.nombre || !datosCliente.rut || !datosCliente.direccion) {
+        alert("Por favor completa Nombre, RUT y Dirección.");
+        return;
+    }
 
-	    try {
-	        // 3. ENVIAR A TU BASE DE DATOS PRIMERO
-	        const response = await fetch(`${API_URL}/api/registrar-cliente`, {
- 	           method: 'POST',
- 	           headers: { 'Content-Type': 'application/json' },
- 	           body: JSON.stringify(datosCliente)
- 	       });
+    try {
+        // 3. ESTE ES EL PASO QUE ENVÍA LOS DATOS A TU BD
+        const response = await fetch(`${API_URL}/api/registrar-cliente`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosCliente)
+        });
 
- 	       if (response.ok) {
-  	          console.log("Cliente registrado con éxito en la BD.");
+        if (response.ok) {
+            console.log("¡Éxito! Datos guardados en la BD.");
             
-            // 4. AQUÍ ES DONDE PROCESAS EL PAGO
-            // Puedes agregar un return aquí si solo quieres probar el guardado
-            // y no saltar a Mercado Pago todavía:
-            // alert("Datos guardados. Ya puedes proceder al pago real.");
+            // 4. AQUÍ DECIDES QUÉ HACER
+            // Si quieres PROBAR y que NO se abra Mercado Pago, descomenta el return:
+            // alert("Datos guardados correctamente. (Pago detenido por modo prueba)");
             // return; 
 
-            // Si quieres seguir al flujo normal:
-            crearPreferenciaDePago(); 
-	        } else {
-	            alert("Error al guardar tus datos, intenta nuevamente.");
- 	       }
-	    } catch (error) {
- 	       console.error("Error al registrar cliente:", error);
- 	   }
-	} 
-
+            // Si quieres que el pago continúe normalmente:
+            iniciarProcesoMercadoPago(); 
+        } else {
+            alert("Hubo un error al guardar los datos en el servidor.");
+        }
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        alert("No se pudo conectar con el servidor.");
+    }
+}
 
 
 
