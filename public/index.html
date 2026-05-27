@@ -725,9 +725,7 @@
 
 
 	      // Dentro de tu archivo public/index.html, busca la función procederAlPago
-
-	async function procederAlPago() {
-    // 1. Recolectar datos del formulario
+async function procederAlPago() {
     const datosCliente = {
         nombre: document.getElementById('shipping-name').value.trim(),
         telefono: document.getElementById('shipping-phone').value.trim(),
@@ -735,43 +733,35 @@
         direccion: document.getElementById('shipping-address').value.trim()
     };
 
-    // 2. Validación simple
     if (!datosCliente.nombre || !datosCliente.rut || !datosCliente.direccion) {
-        alert("Por favor completa Nombre, RUT y Dirección.");
+        alert("Faltan datos obligatorios.");
         return;
     }
 
     try {
-        // 3. ESTE ES EL PASO QUE ENVÍA LOS DATOS A TU BD
+        console.log("Enviando datos a:", `${API_URL}/api/registrar-cliente`);
+        
         const response = await fetch(`${API_URL}/api/registrar-cliente`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datosCliente)
         });
 
+        const resultado = await response.json();
+        
         if (response.ok) {
-            console.log("¡Éxito! Datos guardados en la BD.");
-            
-            // 4. AQUÍ DECIDES QUÉ HACER
-            // Si quieres PROBAR y que NO se abra Mercado Pago, descomenta el return:
-            // alert("Datos guardados correctamente. (Pago detenido por modo prueba)");
-            // return; 
-
-            // Si quieres que el pago continúe normalmente:
-            iniciarProcesoMercadoPago(); 
+            console.log("Éxito:", resultado);
+            alert("Datos guardados con éxito.");
+            // INICIAR MERCADO PAGO AQUÍ SI DESEAS
         } else {
-            alert("Hubo un error al guardar los datos en el servidor.");
+            console.error("Error del servidor:", resultado);
+            alert("Error al guardar: " + (resultado.error || "Desconocido"));
         }
     } catch (error) {
         console.error("Error de conexión:", error);
-        alert("No se pudo conectar con el servidor.");
+        alert("No se pudo conectar con el servidor. Revisa tu internet o la URL del API.");
     }
 }
-
-
-
-
-
 
 
 
