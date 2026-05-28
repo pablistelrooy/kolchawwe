@@ -117,13 +117,35 @@ app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 
+
+
+
+
+
 //   FALTANTE PARA PRUEBA GUARDAR CLIENTE
 
+// --- RUTA PARA REGISTRAR CLIENTE ---
+app.post("/api/registrar-cliente", async (req, res) => {
+    const { nombre, telefono, rut, direccion } = req.body;
+    
+    // Validar que los campos no vengan vacíos
+    if (!nombre || !rut || !direccion) {
+        return res.status(400).json({ error: "Datos incompletos" });
+    }
 
-git add index.js
-git commit -m "Agregando ruta de registro de cliente"
-git push
-3. **Espera a Render**:
+    try {
+        await pool.query(
+            "INSERT INTO clientes (nombre, telefono, rut, direccion) VALUES ($1, $2, $3, $4)",
+            [nombre, telefono, rut, direccion]
+        );
+        res.json({ success: true, message: "Cliente registrado con éxito" });
+    } catch (err) {
+        console.error("Error al guardar cliente:", err);
+        res.status(500).json({ error: "Error interno al guardar en base de datos" });
+    }
+});
+
+
 
 
 
