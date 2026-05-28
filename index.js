@@ -116,6 +116,18 @@ app.put("/api/admin/stock", async (req, res) => {
 app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
+
+//   FALTANTE PARA PRUEBA GUARDAR CLIENTE
+
+
+git add index.js
+git commit -m "Agregando ruta de registro de cliente"
+git push
+3. **Espera a Render**:
+
+
+
+
 app.listen(PORT, () => {
     console.log(`Servidor activo en puerto ${PORT}`);
 });
