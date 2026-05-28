@@ -153,3 +153,14 @@ app.post("/api/registrar-cliente", async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor activo en puerto ${PORT}`);
 });
+
+
+app.get('/api/clientes', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM clientes ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fallo en lectura" });
+  }
+});
