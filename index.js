@@ -164,3 +164,17 @@ app.get('/api/clientes', async (req, res) => {
     res.status(500).json({ error: "Fallo en lectura" });
   }
 });
+
+
+
+
+app.delete("/api/clientes/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query("DELETE FROM clientes WHERE id = $1", [id]);
+    res.json({ success: true, message: "Cliente eliminado correctamente" });
+  } catch (err) {
+    console.error("Error al borrar cliente:", err);
+    res.status(500).json({ error: "No se pudo borrar el registro" });
+  }
+});
