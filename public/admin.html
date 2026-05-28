@@ -5,47 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | Kolchawwe</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #3f3f46; } /* Zinc 700 */
-        h3 { font-family: 'Playfair Display', serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #1a1613; color: #f4e9d5; }
+        h3, h2, .brand-font { font-family: 'Playfair Display', serif; }
+        
         .card-variety {
-            background-color: #000000;
-            border: 1px solid #27272a;
-            border-top: 4px solid #f59e0b;
+            background-color: #0b0a09;
+            border: 1px solid #332d28;
+            border-top: 4px solid #b38e44;
             border-radius: 1.5rem;
             padding: 1.5rem;
-            margin-bottom: 2rem;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .client-row {
+            border-bottom: 1px solid #332d28;
+            transition: background-color 0.2s;
+        }
+        .client-row:hover {
+            background-color: rgba(179, 142, 68, 0.05);
         }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <nav class="bg-black border-b border-amber-900/20 sticky top-0 z-50 h-16 flex items-center shadow-xl">
-        <div class="max-w-2xl mx-auto px-6 w-full flex justify-between items-center text-amber-500">
-            <span class="font-bold tracking-tighter">KOLCHAWWE <span class="text-[10px] text-zinc-500 ml-2">ADMIN</span></span>
-            <a href="/" class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-amber-500 transition">Tienda</a>
+    <!-- Navegación -->
+    <nav class="bg-black border-b border-[#332d28] sticky top-0 z-50 h-16 flex items-center shadow-xl">
+        <div class="max-w-4xl mx-auto px-6 w-full flex justify-between items-center text-[#b38e44]">
+            <span class="font-bold tracking-widest uppercase text-sm">KOLCHAWWE <span class="text-[10px] text-zinc-500 ml-2 tracking-normal">PANEL DE CONTROL</span></span>
+            <a href="/" class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 hover:text-[#b38e44] transition">Tienda</a>
         </div>
     </nav>
 
-    <main class="p-6">
+    <main class="p-6 max-w-4xl mx-auto">
+        
+        <!-- Sección de Login (Acceso Maestro) -->
         <div class="max-w-sm mx-auto mt-10">
-            
             <section id="login-section" class="bg-black p-8 rounded-3xl border border-zinc-800 text-center shadow-2xl">
-                <h2 class="text-xl font-bold text-amber-500 mb-6 italic">Acceso Maestro</h2>
+                <h2 class="text-xl font-bold text-[#b38e44] mb-6 italic">Acceso Maestro</h2>
                 <div class="space-y-4">
-                    <input type="password" id="adminPass" placeholder="Clave" 
-                           class="w-full bg-zinc-900 border border-amber-900/30 rounded-xl p-3 text-2xl text-center text-amber-500 tracking-widest outline-none focus:border-amber-500">
-                    <button onclick="verificarAcceso()" class="w-full bg-amber-500 text-black font-black p-4 rounded-xl hover:bg-amber-400 transition active:scale-95 shadow-lg">
+                    <input type="password" id="adminPass" placeholder="Clave de Seguridad" 
+                           class="w-full bg-zinc-900 border border-[#332d28] rounded-xl p-3 text-2xl text-center text-[#b38e44] tracking-widest outline-none focus:border-[#b38e44]">
+                    <button onclick="verificarAcceso()" class="w-full bg-[#b38e44] text-black font-black p-4 rounded-xl hover:bg-amber-500 transition active:scale-95 shadow-lg">
                         INGRESAR
                     </button>
                 </div>
             </section>
+        </div>
 
-            <div id="admin-content" class="hidden">
-                <div id="status-msg" class="text-center py-10 text-amber-500 font-bold">Cargando variedades de la bodega...</div>
-                <div id="inventario-container"></div>
+        <!-- Panel de Administración (Oculto inicialmente) -->
+        <div id="admin-panel" class="hidden mt-6">
+            
+            <!-- Selector de Pestañas -->
+            <div class="flex justify-center gap-4 mb-8">
+                <button id="btn-tab-stock" onclick="switchTab('stock')" 
+                        class="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#b38e44] text-black transition-all">
+                    <i class="fas fa-boxes mr-2"></i> Gestión de Stock
+                </button>
+                <button id="btn-tab-clientes" onclick="switchTab('clientes')" 
+                        class="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-[#b38e44] transition-all">
+                    <i class="fas fa-users mr-2"></i> Clientes Registrados
+                </button>
+            </div>
+
+            <!-- Contenedor Pestaña 1: Gestión de Stock -->
+            <div id="tab-stock-content" class="block">
+                <div id="status-msg-stock" class="text-center py-10 text-[#b38e44] font-bold">Cargando variedades de la bodega...</div>
+                <div id="inventario-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </div>
+
+            <!-- Contenedor Pestaña 2: Clientes Registrados -->
+            <div id="tab-clientes-content" class="hidden">
+                <div id="status-msg-clientes" class="text-center py-10 text-[#b38e44] font-bold">Cargando base de datos de clientes...</div>
+                
+                <div class="bg-black border border-[#332d28] rounded-2xl p-6 shadow-2xl overflow-x-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-[#b38e44] italic">Historial de Clientes</h3>
+                        <button onclick="cargarClientes()" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-[#b38e44] border border-[#332d28] px-3 py-2 rounded-lg transition flex items-center gap-1">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                    
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="border-b border-[#332d28] text-zinc-500 text-[10px] uppercase tracking-wider">
+                                <th class="pb-3 font-bold">ID</th>
+                                <th class="pb-3 font-bold">Nombre</th>
+                                <th class="pb-3 font-bold">RUT</th>
+                                <th class="pb-3 font-bold">Teléfono</th>
+                                <th class="pb-3 font-bold">Dirección de Entrega</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientes-container" class="text-xs">
+                            <!-- Los clientes dinámicos se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
@@ -53,27 +110,55 @@
 
     <!-- Notificaciones -->
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 z-50 w-full max-w-xs text-center">
-        <div id="toast-content" class="bg-amber-500 text-black px-6 py-4 rounded-2xl font-black shadow-2xl border-2 border-amber-400 uppercase text-xs"></div>
+        <div id="toast-content" class="bg-[#b38e44] text-black px-6 py-4 rounded-2xl font-black shadow-2xl border-2 border-amber-400 uppercase text-xs"></div>
     </div>
 
     <script>
+        const API_URL = 'https://kolchawwe-web.onrender.com';
+        let currentTab = 'stock';
+
         function verificarAcceso() {
             const pass = document.getElementById('adminPass').value;
             if (pass.trim() === "1234") {
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
+                document.getElementById('login-section').parentElement.classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
                 cargarInventario();
+                cargarClientes();
             } else {
                 notificar("⛔ CLAVE INCORRECTA", true);
             }
         }
 
+        // Navegación entre Pestañas de Administración
+        function switchTab(tab) {
+            currentTab = tab;
+            const tabStockBtn = document.getElementById('btn-tab-stock');
+            const tabClientesBtn = document.getElementById('btn-tab-clientes');
+            const stockContent = document.getElementById('tab-stock-content');
+            const clientesContent = document.getElementById('tab-clientes-content');
+
+            if (tab === 'stock') {
+                // Activar pestaña stock
+                tabStockBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#b38e44] text-black transition-all";
+                tabClientesBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-[#b38e44] transition-all";
+                stockContent.classList.replace('hidden', 'block');
+                clientesContent.classList.replace('block', 'hidden');
+            } else {
+                // Activar pestaña clientes
+                tabClientesBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#b38e44] text-black transition-all";
+                tabStockBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-[#b38e44] transition-all";
+                clientesContent.classList.replace('hidden', 'block');
+                stockContent.classList.replace('block', 'hidden');
+            }
+        }
+
+        // --- FUNCIONES DE STOCK ---
         async function cargarInventario() {
             const container = document.getElementById('inventario-container');
-            const status = document.getElementById('status-msg');
+            const status = document.getElementById('status-msg-stock');
             
             try {
-                const response = await fetch('/api/cervezas');
+                const response = await fetch(`${API_URL}/api/cervezas`);
                 const cervezas = await response.json();
                 
                 if (cervezas.length === 0) {
@@ -82,31 +167,31 @@
                 }
 
                 status.classList.add('hidden');
-                renderizar(cervezas);
+                renderizarStock(cervezas);
             } catch (e) {
                 status.innerText = "❌ ERROR: El servidor no responde";
                 console.error("Error al cargar:", e);
             }
         }
 
-        function renderizar(data) {
+        function renderizarStock(data) {
             const container = document.getElementById('inventario-container');
             container.innerHTML = '';
             data.forEach(c => {
                 const div = document.createElement('div');
                 div.className = 'card-variety';
                 div.innerHTML = `
-                    <h3 class="text-2xl font-bold text-amber-500 italic text-center mb-4">${c.nombre}</h3>
+                    <h3 class="text-2xl font-bold text-[#b38e44] italic text-center mb-4">${c.nombre}</h3>
                     <div class="space-y-4">
-                        <div class="bg-zinc-900 p-4 rounded-xl">
+                        <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
                             <label class="text-[10px] text-zinc-500 uppercase font-bold block mb-2">Precio (CLP)</label>
-                            <input type="number" id="precio-${c.id}" value="${c.precio}" class="w-full bg-amber-100 rounded-lg p-2 text-black font-black text-center text-xl outline-none">
+                            <input type="number" id="precio-${c.id}" value="${c.precio}" class="w-full bg-[#1a1613] border border-[#332d28] rounded-lg p-2 text-white font-black text-center text-xl outline-none focus:border-[#b38e44]">
                         </div>
-                        <div class="bg-zinc-900 p-4 rounded-xl">
-                            <label class="text-[10px] text-zinc-500 uppercase font-bold block mb-2">Stock Barriles</label>
-                            <input type="number" id="stock-${c.id}" value="${c.stock}" class="w-full bg-amber-100 rounded-lg p-2 text-black font-black text-center text-xl outline-none">
+                        <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
+                            <label class="text-[10px] text-zinc-500 uppercase font-bold block mb-2">Stock Barriles / Botellas</label>
+                            <input type="number" id="stock-${c.id}" value="${c.stock}" class="w-full bg-[#1a1613] border border-[#332d28] rounded-lg p-2 text-white font-black text-center text-xl outline-none focus:border-[#b38e44]">
                         </div>
-                        <button onclick="guardar(${c.id}, '${c.nombre}')" class="w-full bg-amber-600 text-black font-black py-3 rounded-lg hover:bg-amber-500 transition uppercase text-sm border-b-4 border-amber-800">
+                        <button onclick="guardar(${c.id}, '${c.nombre}')" class="w-full bg-[#b38e44] text-black font-black py-3 rounded-lg hover:bg-amber-500 transition uppercase text-sm border-b-4 border-amber-850">
                             Guardar Cambios
                         </button>
                     </div>
@@ -120,21 +205,114 @@
             const precio = document.getElementById(`precio-${id}`).value;
             const stock = document.getElementById(`stock-${id}`).value;
             try {
-                const res = await fetch('/api/admin/stock', {
+                const res = await fetch(`${API_URL}/api/admin/stock`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id, precio, stock, password: pass })
                 });
-                if (res.ok) notificar("✅ GUARDADO: " + nombre);
-                else notificar("❌ ERROR AL GUARDAR", true);
-            } catch (e) { notificar("📡 SIN CONEXIÓN", true); }
+                if (res.ok) {
+                    notificar("✅ GUARDADO: " + nombre);
+                    cargarInventario();
+                } else {
+                    notificar("❌ ERROR AL GUARDAR", true);
+                }
+            } catch (e) { 
+                notificar("📡 SIN CONEXIÓN", true); 
+            }
         }
 
+        // --- FUNCIONES DE CLIENTES ---
+        async function cargarClientes() {
+            const container = document.getElementById('clientes-container');
+            const status = document.getElementById('status-msg-clientes');
+            const pass = document.getElementById('adminPass').value;
+
+            const endpointsCandidatos = [
+                `${API_URL}/api/clientes?password=${pass}`,
+                `${API_URL}/api/clientes`,
+                `${API_URL}/api/cliente?password=${pass}`,
+                `${API_URL}/api/cliente`
+            ];
+
+            let dataExitoso = null;
+            let ultimoStatus = 0;
+
+            for (let url of endpointsCandidatos) {
+                try {
+                    const response = await fetch(url);
+                    ultimoStatus = response.status;
+                    if (response.ok) {
+                        dataExitoso = await response.json();
+                        break;
+                    }
+                } catch (err) {
+                    console.warn("Fallo temporal buscando ruta:", url, err);
+                }
+            }
+
+            if (dataExitoso) {
+                status.classList.add('hidden');
+                if (!Array.isArray(dataExitoso) || dataExitoso.length === 0) {
+                    container.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-zinc-500 italic">No hay clientes registrados en la base de datos aún.</td></tr>`;
+                    return;
+                }
+                renderizarClientes(dataExitoso);
+            } else {
+                // Si el servidor de Render arrojó 404, guiar al usuario sobre cómo solucionarlo de manera didáctica
+                status.innerHTML = `
+                    <div class="bg-zinc-950 p-6 rounded-2xl border border-red-900/40 text-left max-w-xl mx-auto space-y-4">
+                        <div class="flex items-center gap-3 text-red-400">
+                            <i class="fas fa-exclamation-triangle text-2xl"></i>
+                            <h4 class="font-bold text-sm uppercase tracking-wide">Error 404: Endpoint de Auditoría no implementado</h4>
+                        </div>
+                        <p class="text-[11px] text-zinc-400 leading-relaxed">
+                            Los datos de tus clientes se guardan correctamente en PostgreSQL desde la web, pero tu servidor backend en Render todavía no sabe cómo leerlos para mostrárselos al panel de administración.
+                        </p>
+                        <div class="bg-[#1a1613] p-4 rounded-xl border border-[#332d28] space-y-2">
+                            <p class="text-[10px] text-zinc-500 font-bold uppercase">Solución Rápida: Agrega esto en tu index.js de Render</p>
+                            <pre class="text-[9px] font-mono text-amber-500 overflow-x-auto whitespace-pre p-2 bg-black rounded border border-zinc-800 select-all">
+app.get('/api/clientes', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM clientes ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fallo en lectura" });
+  }
+});</pre>
+                        </div>
+                        <p class="text-[10px] text-zinc-500">
+                            Una vez que subas este cambio a tu servidor y Render termine de compilarlo, presiona el botón <strong class="text-[#b38e44]">"Actualizar"</strong> arriba para ver tu historial de despachos de manera automática.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderizarClientes(data) {
+            const container = document.getElementById('clientes-container');
+            container.innerHTML = '';
+            
+            data.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = 'client-row';
+                tr.innerHTML = `
+                    <td class="py-4 font-bold text-zinc-500">#${c.id}</td>
+                    <td class="py-4 font-semibold text-white">${c.nombre}</td>
+                    <td class="py-4 text-zinc-300 font-mono">${c.rut || 'N/A'}</td>
+                    <td class="py-4 text-zinc-300">${c.telefono}</td>
+                    <td class="py-4 text-zinc-400 italic">${c.direccion}</td>
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        // --- NOTIFICACIONES ---
         function notificar(msg, error = false) {
             const toast = document.getElementById('toast');
             const content = document.getElementById('toast-content');
             content.innerText = msg;
-            content.className = `px-6 py-4 rounded-2xl font-black shadow-2xl border-2 uppercase text-xs ${error ? 'bg-red-700 text-white border-red-500' : 'bg-amber-500 text-black border-amber-400'}`;
+            content.className = `px-6 py-4 rounded-2xl font-black shadow-2xl border-2 uppercase text-xs ${error ? 'bg-red-750 text-white border-red-500' : 'bg-[#b38e44] text-black border-amber-400'}`;
             toast.classList.remove('opacity-0');
             setTimeout(() => toast.classList.add('opacity-0'), 3000);
         }
