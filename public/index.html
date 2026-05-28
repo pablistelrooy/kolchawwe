@@ -260,7 +260,7 @@
     <!-- Envoltura principal de la página para efectos de acomodo dinámico -->
     <div class="page-content-wrapper">
 
-        <!-- Navegación Adaptable (removido w-full para permitir transición de right) -->
+        <!-- Navegación Adaptable -->
         <nav class="fixed left-0 right-0 z-50 bg-[#110f0d] border-b border-[#332d28] px-6 py-4 flex justify-between items-center">
             <div class="text-xl font-bold tracking-widest text-brand-gold">
                 KOLCHAWWE
@@ -393,35 +393,6 @@
                 </div>
             </div>
 
-	   
-
-
-
-
- <!-- BLOQUE DE PRUEBA DE GUARDADO (Pégalo antes de tu formulario de despacho) -->
-<div id="seccion-prueba" class="bg-zinc-900 p-6 rounded-xl border border-amber-900/50 mb-8 mt-10">
-    <h3 class="text-amber-500 font-bold mb-4 uppercase text-sm">Prueba de Registro en Base de Datos</h3>
-    <div class="flex items-center gap-3 mb-4">
-        <input type="checkbox" id="test-checkbox-edad" class="w-5 h-5 accent-amber-500">
-        <label for="test-checkbox-edad" class="text-sm">Soy mayor de edad (Confirmar para guardar)</label>
-    </div>
-    <button onclick="probarGuardado()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-500 transition">
-        GUARDAR DATOS DE PRUEBA
-    </button>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
             <!-- PASO 2: FORMULARIO DE DESPACHO -->
             <div id="step-2-container" class="hidden flex-grow flex flex-col justify-between">
                 <div class="space-y-4 pr-1">
@@ -432,6 +403,12 @@
                     <div>
                         <label class="text-[9px] uppercase tracking-wider text-zinc-400 block mb-2 font-bold">Nombre Completo *</label>
                         <input type="text" id="shipping-name" class="premium-input" placeholder="Ej: Juan Pérez">
+                    </div>
+
+                    <!-- NUEVO CAMPO RUT AGREGADO -->
+                    <div>
+                        <label class="text-[9px] uppercase tracking-wider text-zinc-400 block mb-2 font-bold">RUT (Sin puntos con guión) *</label>
+                        <input type="text" id="shipping-rut" class="premium-input" placeholder="Ej: 12345678-9">
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -651,46 +628,24 @@
             calcularCostosDespacho();
         }
 
-        // CAMBIO 
-	
-	function modificarCantidad(id, delta) {
+        function modificarCantidad(id, delta) {
             const item = carrito.find(i => i.id === id);
+            const producto = inventario.find(p => p.id === id); // Buscamos el stock real
+    
             if (item) {
+                // Validar si intentamos sumar más de lo que existe
+                if (delta > 0 && item.cantidad >= producto.stock) {
+                    alert("¡Límite de stock alcanzado!");
+                    return;
+                }
+        
                 item.cantidad += delta;
                 if (item.cantidad <= 0) carrito = carrito.filter(i => i.id !== id);
                 actualizarInterfazCarro();
             }
         }
 
-
-	function modificarCantidad(id, delta) {
-    		const item = carrito.find(i => i.id === id);
-    		const producto = inventario.find(p => p.id === id); // Buscamos el stock real
-    
-    		if (item) {
-       		 // Validar si intentamos sumar más de lo que existe
-        		if (delta > 0 && item.cantidad >= producto.stock) {
-           		 alert("¡Límite de stock alcanzado!");
-           		 return;
-       		 }
-        
-	        item.cantidad += delta;
-        	if (item.cantidad <= 0) carrito = carrito.filter(i => i.id !== id);
-	        actualizarInterfazCarro();
-  	  }
-	}
-	
-
-
-
-        
-        
-
-	//  XXXXXXXXXXX
-        
-
-
-	function irAlDespacho() {
+        function irAlDespacho() {
             if(carrito.length === 0) return;
             document.getElementById('panel-title').innerText = "Despacho";
             document.getElementById('step-1-container').classList.add('hidden');
@@ -749,57 +704,7 @@
             document.getElementById('cart-total').innerText = `$${totalGeneral.toLocaleString('es-CL')}`;
         }
 
- 
-	// PRUEBA RECOLEXION DE DATOS
-
-
-	      // Dentro de tu archivo public/index.html, busca la función procederAlPago
-
-
-	// En tu public/index.html, busca esta función y actualízala:
-
-async function procederAlPago() {
-    // 1. Validar edad
-    const esMayor = document.getElementById('checkbox-edad').checked;
-    if (!esMayor) {
-        alert("Debes ser mayor de edad para continuar.");
-        return;
-    }
-
-    // 2. Guardar datos en BD (El guardado previo que querías)
-    const datosCliente = {
-        nombre: document.getElementById('shipping-name').value,
-        telefono: document.getElementById('shipping-phone').value,
-        rut: document.getElementById('shipping-rut').value,
-        direccion: document.getElementById('shipping-address').value
-    };
-
-    try {
-        // Enviar datos antes de iniciar el pago
-        await fetch(`${API_URL}/api/registrar-cliente`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datosCliente)
-        });
-        
-        // 3. SI EL GUARDADO FUE EXITOSO, llamamos a la función que inicia el pago
-        // Esta función es la que YA tienes y que gestiona el pago de MP
-        crearPreferenciaYPagar(); 
-
-    } catch (error) {
-        console.error("Error al guardar cliente:", error);
-        alert("Hubo un problema registrando tus datos. Inténtalo de nuevo.");
-    }
-}
-
-
-
-
-	    // ANULAR PARA RECOLECTAR DATOS  
-
-
-
-	    async function procederAlPago(event) {
+        async function procederAlPago(event) {
             if(event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -808,13 +713,14 @@ async function procederAlPago() {
             if (carrito.length === 0) return false;
 
             const nombre = document.getElementById('shipping-name').value.trim();
+            const rut = document.getElementById('shipping-rut').value.trim();
             const telefono = document.getElementById('shipping-phone').value.trim();
             const comuna = document.getElementById('shipping-commune').value;
             const direccion = document.getElementById('shipping-address').value.trim();
             const isAdult = document.getElementById('age-verification').checked;
 
             // Validación de campos requeridos (si es retiro, dirección se pasa por alto)
-            if (!nombre || !telefono || !comuna || (!direccion && comuna !== "retiro")) {
+            if (!nombre || !rut || !telefono || !comuna || (!direccion && comuna !== "retiro")) {
                 alert("Por favor, completa todos los campos del despacho para continuar.");
                 return false;
             }
@@ -830,6 +736,34 @@ async function procederAlPago() {
 
             try {
                 btn.disabled = true;
+                btn.innerHTML = `<div class="loading-spinner"></div> <span class="ml-2">Registrando despacho...</span>`;
+
+                // ==========================================
+                // GUARDADO PREVIO AUTOMÁTICO EN POSTGRESQL
+                // ==========================================
+                const responseRegistro = await fetch(`${API_URL}/api/registrar-cliente`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre: nombre,
+                        telefono: telefono,
+                        rut: rut, // Enviando el RUT dinámicamente
+                        direccion: `${direccion}, Comuna: ${comuna}`
+                    })
+                });
+
+                if (!responseRegistro.ok) {
+                    throw new Error("No se pudo registrar la información del cliente");
+                }
+                
+                console.log("Datos de despacho guardados correctamente en la base de datos.");
+
+                // ==========================================
+                // PROCEDER CON MERCADO PAGO
+                // ==========================================
                 btn.innerHTML = `<div class="loading-spinner"></div> <span class="ml-2">Preparando orden...</span>`;
 
                 const itemsParaEnviar = carrito.map(item => ({
@@ -893,7 +827,7 @@ async function procederAlPago() {
 
             } catch (error) {
                 console.error("Fallo Pago:", error);
-                btn.innerHTML = `<span class="text-xs text-red-400">Error de Servidor</span>`;
+                btn.innerHTML = `<span class="text-xs text-red-400">Error de Registro</span>`;
                 setTimeout(() => {
                     btn.innerHTML = originalContent;
                     btn.disabled = false;
@@ -922,49 +856,6 @@ async function procederAlPago() {
         window.calcularCostosDespacho = calcularCostosDespacho;
 
         document.addEventListener('DOMContentLoaded', loadInventory);
-
-	async function probarGuardado() {
-    const esMayor = document.getElementById('test-checkbox-edad').checked;
-    
-    if (!esMayor) {
-        alert("¡Debes marcar la casilla de edad primero!");
-        return;
-    }
-
-    const datosPrueba = {
-        nombre: "Usuario de Prueba",
-        telefono: "999999999",
-        rut: "11.111.111-1",
-        direccion: "Calle Falsa 123"
-    };
-
-    try {
-        console.log("Enviando a:", `${API_URL}/api/registrar-cliente`);
-        const response = await fetch(`${API_URL}/api/registrar-cliente`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(datosPrueba)
-        });
-
-        if (response.ok) {
-            alert("¡ÉXITO! Los datos se guardaron correctamente en la base de datos.");
-        } else {
-            const errorData = await response.json();
-            alert("Error del servidor: " + JSON.stringify(errorData));
-        }
-    } catch (error) {
-        console.error("Error completo:", error);
-        alert("Fallo de conexión. Revisa la consola (F12).");
-    }
-}
-
-
-
-
-
-
-
     </script>
 </body>
-
-
+</html>
