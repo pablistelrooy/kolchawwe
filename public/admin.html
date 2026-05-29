@@ -87,6 +87,13 @@
                             <i class="fas fa-sync-alt"></i> Actualizar
                         </button>
                     </div>
+
+                    <!-- Buscador Nuevo -->
+                    <div class="mb-6 relative">
+                        <i class="fas fa-search absolute left-3 top-3 text-zinc-500"></i>
+                        <input type="text" id="busquedaCliente" oninput="filtrarPorInicial()" placeholder="Buscar por inicial de nombre o apellido..." 
+                               class="w-full bg-zinc-900 border border-[#332d28] pl-10 pr-3 py-3 rounded-lg text-white outline-none focus:border-[#b38e44] text-xs transition">
+                    </div>
                     
                     <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead>
@@ -96,6 +103,7 @@
                                 <th class="pb-3 font-bold">RUT</th>
                                 <th class="pb-3 font-bold">Teléfono</th>
                                 <th class="pb-3 font-bold">Dirección de Entrega</th>
+                                <th class="pb-3 font-bold text-center">Acción</th>
                             </tr>
                         </thead>
                         <tbody id="clientes-container" class="text-xs">
@@ -116,6 +124,7 @@
     <script>
         const API_URL = 'https://kolchawwe-web.onrender.com';
         let currentTab = 'stock';
+        let listaGlobalClientes = []; // Almacena el listado para permitir búsquedas dinámicas
 
         function verificarAcceso() {
             const pass = document.getElementById('adminPass').value;
@@ -253,12 +262,12 @@
             if (dataExitoso) {
                 status.classList.add('hidden');
                 if (!Array.isArray(dataExitoso) || dataExitoso.length === 0) {
-                    container.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-zinc-500 italic">No hay clientes registrados en la base de datos aún.</td></tr>`;
+                    container.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-zinc-500 italic">No hay clientes registrados en la base de datos aún.</td></tr>`;
                     return;
                 }
+                listaGlobalClientes = dataExitoso; // Almacenamos el array para la búsqueda local
                 renderizarClientes(dataExitoso);
             } else {
-                // Si el servidor de Render arrojó 404, guiar al usuario sobre cómo solucionarlo de manera didáctica
                 status.innerHTML = `
                     <div class="bg-zinc-950 p-6 rounded-2xl border border-red-900/40 text-left max-w-xl mx-auto space-y-4">
                         <div class="flex items-center gap-3 text-red-400">
@@ -302,9 +311,56 @@ app.get('/api/clientes', async (req, res) => {
                     <td class="py-4 text-zinc-300 font-mono">${c.rut || 'N/A'}</td>
                     <td class="py-4 text-zinc-300">${c.telefono}</td>
                     <td class="py-4 text-zinc-400 italic">${c.direccion}</td>
+                    <td class="py-4 text-center">
+                        <button onclick="eliminarCliente(${c.id})" class="text-red-500 hover:text-red-300 transition" title="Eliminar Registro">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
                 `;
                 container.appendChild(tr);
             });
+        }
+
+        function filtrarPorInicial() {
+            const busqueda = document.getElementById('busquedaCliente').value.toLowerCase().trim();
+            if (!busqueda) {
+                renderizarClientes(listaGlobalClientes);
+                return;
+            }
+            
+            const letra = busqueda.charAt(0);
+            const filtrados = listaGlobalClientes.filter(c => {
+                if (!c.nombre) return false;
+                // Separa en palabras para buscar por inicial de Nombre O Apellido
+                const palabras = c.nombre.toLowerCase().split(' ');
+                return palabras.some(palabra => palabra.startsWith(letra));
+            });
+            
+            renderizarClientes(filtrados);
+        }
+
+        async function eliminarCliente(id) {
+            if (!confirm("¿Estás seguro de que deseas eliminar este cliente permanentemente?")) return;
+            
+            const pass = document.getElementById('adminPass').value;
+            try {
+                // Utilizo la ruta estándar de REST
+                const res = await fetch(`${API_URL}/api/clientes/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass })
+                });
+                
+                if (res.ok) {
+                    notificar("✅ CLIENTE ELIMINADO");
+                    document.getElementById('busquedaCliente').value = ''; // Limpiar buscador
+                    cargarClientes(); // Recarga la info de la BD
+                } else {
+                    notificar("❌ ERROR AL ELIMINAR", true);
+                }
+            } catch (e) {
+                notificar("📡 SIN CONEXIÓN O ERROR DE RED", true);
+            }
         }
 
         // --- NOTIFICACIONES ---
