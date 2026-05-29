@@ -41,7 +41,7 @@
 
     <main class="p-6 max-w-4xl mx-auto">
         
-        <!-- Sección de Login (Acceso Maestro) -->
+        <!-- Sección de Login -->
         <div class="max-w-sm mx-auto mt-10">
             <section id="login-section" class="bg-black p-8 rounded-3xl border border-zinc-800 text-center shadow-2xl">
                 <h2 class="text-xl font-bold text-[#b38e44] mb-6 italic">Acceso Maestro</h2>
@@ -55,10 +55,8 @@
             </section>
         </div>
 
-        <!-- Panel de Administración (Oculto inicialmente) -->
+        <!-- Panel de Administración -->
         <div id="admin-panel" class="hidden mt-6">
-            
-            <!-- Selector de Pestañas -->
             <div class="flex justify-center gap-4 mb-8">
                 <button id="btn-tab-stock" onclick="switchTab('stock')" 
                         class="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#b38e44] text-black transition-all">
@@ -70,28 +68,32 @@
                 </button>
             </div>
 
-            <!-- Contenedor Pestaña 1: Gestión de Stock -->
+            <!-- Contenedor Stock -->
             <div id="tab-stock-content" class="block">
-                <div id="status-msg-stock" class="text-center py-10 text-[#b38e44] font-bold">Cargando variedades de la bodega...</div>
+                <div id="status-msg-stock" class="text-center py-10 text-[#b38e44] font-bold">Cargando variedades...</div>
                 <div id="inventario-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
 
-            <!-- Contenedor Pestaña 2: Clientes Registrados -->
+            <!-- Contenedor Clientes -->
             <div id="tab-clientes-content" class="hidden">
-                <div id="status-msg-clientes" class="text-center py-10 text-[#b38e44] font-bold">Cargando base de datos de clientes...</div>
+                <div id="status-msg-clientes" class="text-center py-10 text-[#b38e44] font-bold">Cargando base de datos...</div>
                 
                 <div class="bg-black border border-[#332d28] rounded-2xl p-6 shadow-2xl overflow-x-auto">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-bold text-[#b38e44] italic">Historial de Clientes</h3>
-                        <button onclick="cargarClientes()" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-[#b38e44] border border-[#332d28] px-3 py-2 rounded-lg transition flex items-center gap-1">
-                            <i class="fas fa-sync-alt"></i> Actualizar
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="descargarCSV()" class="text-xs bg-emerald-900 hover:bg-emerald-800 text-emerald-100 border border-emerald-700 px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <i class="fas fa-file-csv"></i> Descargar Planilla
+                            </button>
+                            <button onclick="cargarClientes()" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-[#b38e44] border border-[#332d28] px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                <i class="fas fa-sync-alt"></i> Actualizar
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Buscador Nuevo -->
                     <div class="mb-6 relative">
                         <i class="fas fa-search absolute left-3 top-3 text-zinc-500"></i>
-                        <input type="text" id="busquedaCliente" oninput="filtrarPorInicial()" placeholder="Buscar por inicial de nombre o apellido..." 
+                        <input type="text" id="busquedaCliente" oninput="filtrarPorInicial()" placeholder="Buscar por inicial..." 
                                class="w-full bg-zinc-900 border border-[#332d28] pl-10 pr-3 py-3 rounded-lg text-white outline-none focus:border-[#b38e44] text-xs transition">
                     </div>
                     
@@ -102,29 +104,24 @@
                                 <th class="pb-3 font-bold">Nombre</th>
                                 <th class="pb-3 font-bold">RUT</th>
                                 <th class="pb-3 font-bold">Teléfono</th>
-                                <th class="pb-3 font-bold">Dirección de Entrega</th>
+                                <th class="pb-3 font-bold">Dirección</th>
                                 <th class="pb-3 font-bold text-center">Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="clientes-container" class="text-xs">
-                            <!-- Los clientes dinámicos se cargarán aquí -->
-                        </tbody>
+                        <tbody id="clientes-container" class="text-xs"></tbody>
                     </table>
                 </div>
             </div>
-
         </div>
     </main>
 
-    <!-- Notificaciones -->
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 opacity-0 transition-all duration-500 z-50 w-full max-w-xs text-center">
         <div id="toast-content" class="bg-[#b38e44] text-black px-6 py-4 rounded-2xl font-black shadow-2xl border-2 border-amber-400 uppercase text-xs"></div>
     </div>
 
     <script>
         const API_URL = 'https://kolchawwe-web.onrender.com';
-        let currentTab = 'stock';
-        let listaGlobalClientes = []; // Almacena el listado para permitir búsquedas dinámicas
+        let listaGlobalClientes = [];
 
         function verificarAcceso() {
             const pass = document.getElementById('adminPass').value;
@@ -138,22 +135,18 @@
             }
         }
 
-        // Navegación entre Pestañas de Administración
         function switchTab(tab) {
-            currentTab = tab;
             const tabStockBtn = document.getElementById('btn-tab-stock');
             const tabClientesBtn = document.getElementById('btn-tab-clientes');
             const stockContent = document.getElementById('tab-stock-content');
             const clientesContent = document.getElementById('tab-clientes-content');
 
             if (tab === 'stock') {
-                // Activar pestaña stock
                 tabStockBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#b38e44] text-black transition-all";
                 tabClientesBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-[#b38e44] transition-all";
                 stockContent.classList.replace('hidden', 'block');
                 clientesContent.classList.replace('block', 'hidden');
             } else {
-                // Activar pestaña clientes
                 tabClientesBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-[#b38e44] text-black transition-all";
                 tabStockBtn.className = "px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-[#b38e44] transition-all";
                 clientesContent.classList.replace('hidden', 'block');
@@ -161,147 +154,43 @@
             }
         }
 
-        // --- FUNCIONES DE STOCK ---
         async function cargarInventario() {
-            const container = document.getElementById('inventario-container');
-            const status = document.getElementById('status-msg-stock');
-            
             try {
                 const response = await fetch(`${API_URL}/api/cervezas`);
                 const cervezas = await response.json();
-                
-                if (cervezas.length === 0) {
-                    status.innerHTML = "⚠️ LA BASE DE DATOS ESTÁ VACÍA.<br><span class='text-xs font-normal text-zinc-400'>Debes insertar las variedades en el Shell de Render.</span>";
-                    return;
-                }
-
-                status.classList.add('hidden');
-                renderizarStock(cervezas);
-            } catch (e) {
-                status.innerText = "❌ ERROR: El servidor no responde";
-                console.error("Error al cargar:", e);
-            }
-        }
-
-        function renderizarStock(data) {
-            const container = document.getElementById('inventario-container');
-            container.innerHTML = '';
-            data.forEach(c => {
-                const div = document.createElement('div');
-                div.className = 'card-variety';
-                div.innerHTML = `
-                    <h3 class="text-2xl font-bold text-[#b38e44] italic text-center mb-4">${c.nombre}</h3>
-                    <div class="space-y-4">
-                        <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
-                            <label class="text-[10px] text-zinc-500 uppercase font-bold block mb-2">Precio (CLP)</label>
+                const container = document.getElementById('inventario-container');
+                document.getElementById('status-msg-stock').classList.add('hidden');
+                container.innerHTML = '';
+                cervezas.forEach(c => {
+                    const div = document.createElement('div');
+                    div.className = 'card-variety';
+                    div.innerHTML = `
+                        <h3 class="text-2xl font-bold text-[#b38e44] italic text-center mb-4">${c.nombre}</h3>
+                        <div class="space-y-4">
                             <input type="number" id="precio-${c.id}" value="${c.precio}" class="w-full bg-[#1a1613] border border-[#332d28] rounded-lg p-2 text-white font-black text-center text-xl outline-none focus:border-[#b38e44]">
-                        </div>
-                        <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800">
-                            <label class="text-[10px] text-zinc-500 uppercase font-bold block mb-2">Stock Barriles / Botellas</label>
                             <input type="number" id="stock-${c.id}" value="${c.stock}" class="w-full bg-[#1a1613] border border-[#332d28] rounded-lg p-2 text-white font-black text-center text-xl outline-none focus:border-[#b38e44]">
+                            <button onclick="guardar(${c.id}, '${c.nombre}')" class="w-full bg-[#b38e44] text-black font-black py-3 rounded-lg hover:bg-amber-500 transition uppercase text-sm border-b-4 border-amber-850">Guardar Cambios</button>
                         </div>
-                        <button onclick="guardar(${c.id}, '${c.nombre}')" class="w-full bg-[#b38e44] text-black font-black py-3 rounded-lg hover:bg-amber-500 transition uppercase text-sm border-b-4 border-amber-850">
-                            Guardar Cambios
-                        </button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        async function guardar(id, nombre) {
-            const pass = document.getElementById('adminPass').value;
-            const precio = document.getElementById(`precio-${id}`).value;
-            const stock = document.getElementById(`stock-${id}`).value;
-            try {
-                const res = await fetch(`${API_URL}/api/admin/stock`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, precio, stock, password: pass })
+                    `;
+                    container.appendChild(div);
                 });
-                if (res.ok) {
-                    notificar("✅ GUARDADO: " + nombre);
-                    cargarInventario();
-                } else {
-                    notificar("❌ ERROR AL GUARDAR", true);
-                }
-            } catch (e) { 
-                notificar("📡 SIN CONEXIÓN", true); 
-            }
+            } catch (e) { document.getElementById('status-msg-stock').innerText = "❌ ERROR: Servidor no responde"; }
         }
 
-        // --- FUNCIONES DE CLIENTES ---
         async function cargarClientes() {
-            const container = document.getElementById('clientes-container');
-            const status = document.getElementById('status-msg-clientes');
-            const pass = document.getElementById('adminPass').value;
-
-            const endpointsCandidatos = [
-                `${API_URL}/api/clientes?password=${pass}`,
-                `${API_URL}/api/clientes`,
-                `${API_URL}/api/cliente?password=${pass}`,
-                `${API_URL}/api/cliente`
-            ];
-
-            let dataExitoso = null;
-            let ultimoStatus = 0;
-
-            for (let url of endpointsCandidatos) {
-                try {
-                    const response = await fetch(url);
-                    ultimoStatus = response.status;
-                    if (response.ok) {
-                        dataExitoso = await response.json();
-                        break;
-                    }
-                } catch (err) {
-                    console.warn("Fallo temporal buscando ruta:", url, err);
+            try {
+                const res = await fetch(`${API_URL}/api/clientes`);
+                if(res.ok) {
+                    listaGlobalClientes = await res.json();
+                    document.getElementById('status-msg-clientes').classList.add('hidden');
+                    renderizarClientes(listaGlobalClientes);
                 }
-            }
-
-            if (dataExitoso) {
-                status.classList.add('hidden');
-                if (!Array.isArray(dataExitoso) || dataExitoso.length === 0) {
-                    container.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-zinc-500 italic">No hay clientes registrados en la base de datos aún.</td></tr>`;
-                    return;
-                }
-                listaGlobalClientes = dataExitoso; // Almacenamos el array para la búsqueda local
-                renderizarClientes(dataExitoso);
-            } else {
-                status.innerHTML = `
-                    <div class="bg-zinc-950 p-6 rounded-2xl border border-red-900/40 text-left max-w-xl mx-auto space-y-4">
-                        <div class="flex items-center gap-3 text-red-400">
-                            <i class="fas fa-exclamation-triangle text-2xl"></i>
-                            <h4 class="font-bold text-sm uppercase tracking-wide">Error 404: Endpoint de Auditoría no implementado</h4>
-                        </div>
-                        <p class="text-[11px] text-zinc-400 leading-relaxed">
-                            Los datos de tus clientes se guardan correctamente en PostgreSQL desde la web, pero tu servidor backend en Render todavía no sabe cómo leerlos para mostrárselos al panel de administración.
-                        </p>
-                        <div class="bg-[#1a1613] p-4 rounded-xl border border-[#332d28] space-y-2">
-                            <p class="text-[10px] text-zinc-500 font-bold uppercase">Solución Rápida: Agrega esto en tu index.js de Render</p>
-                            <pre class="text-[9px] font-mono text-amber-500 overflow-x-auto whitespace-pre p-2 bg-black rounded border border-zinc-800 select-all">
-app.get('/api/clientes', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM clientes ORDER BY id DESC');
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Fallo en lectura" });
-  }
-});</pre>
-                        </div>
-                        <p class="text-[10px] text-zinc-500">
-                            Una vez que subas este cambio a tu servidor y Render termine de compilarlo, presiona el botón <strong class="text-[#b38e44]">"Actualizar"</strong> arriba para ver tu historial de despachos de manera automática.
-                        </p>
-                    </div>
-                `;
-            }
+            } catch (e) { notificar("❌ Error al cargar clientes", true); }
         }
 
         function renderizarClientes(data) {
             const container = document.getElementById('clientes-container');
             container.innerHTML = '';
-            
             data.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.className = 'client-row';
@@ -311,59 +200,27 @@ app.get('/api/clientes', async (req, res) => {
                     <td class="py-4 text-zinc-300 font-mono">${c.rut || 'N/A'}</td>
                     <td class="py-4 text-zinc-300">${c.telefono}</td>
                     <td class="py-4 text-zinc-400 italic">${c.direccion}</td>
-                    <td class="py-4 text-center">
-                        <button onclick="eliminarCliente(${c.id})" class="text-red-500 hover:text-red-300 transition" title="Eliminar Registro">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
+                    <td class="py-4 text-center"><button onclick="eliminarCliente(${c.id})" class="text-red-500"><i class="fas fa-trash-alt"></i></button></td>
                 `;
                 container.appendChild(tr);
             });
         }
 
-        function filtrarPorInicial() {
-            const busqueda = document.getElementById('busquedaCliente').value.toLowerCase().trim();
-            if (!busqueda) {
-                renderizarClientes(listaGlobalClientes);
-                return;
-            }
-            
-            const letra = busqueda.charAt(0);
-            const filtrados = listaGlobalClientes.filter(c => {
-                if (!c.nombre) return false;
-                // Separa en palabras para buscar por inicial de Nombre O Apellido
-                const palabras = c.nombre.toLowerCase().split(' ');
-                return palabras.some(palabra => palabra.startsWith(letra));
+        function descargarCSV() {
+            if (listaGlobalClientes.length === 0) return notificar("No hay datos para exportar", true);
+            let csv = "ID,Nombre,RUT,Telefono,Direccion\n";
+            listaGlobalClientes.forEach(c => {
+                csv += `${c.id},"${c.nombre}","${c.rut}","${c.telefono}","${c.direccion}"\n`;
             });
-            
-            renderizarClientes(filtrados);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'clientes_kolchawwe.csv';
+            a.click();
+            notificar("✅ DESCARGANDO PLANILLA...");
         }
 
-        async function eliminarCliente(id) {
-            if (!confirm("¿Estás seguro de que deseas eliminar este cliente permanentemente?")) return;
-            
-            const pass = document.getElementById('adminPass').value;
-            try {
-                // Utilizo la ruta estándar de REST
-                const res = await fetch(`${API_URL}/api/clientes/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password: pass })
-                });
-                
-                if (res.ok) {
-                    notificar("✅ CLIENTE ELIMINADO");
-                    document.getElementById('busquedaCliente').value = ''; // Limpiar buscador
-                    cargarClientes(); // Recarga la info de la BD
-                } else {
-                    notificar("❌ ERROR AL ELIMINAR", true);
-                }
-            } catch (e) {
-                notificar("📡 SIN CONEXIÓN O ERROR DE RED", true);
-            }
-        }
-
-        // --- NOTIFICACIONES ---
         function notificar(msg, error = false) {
             const toast = document.getElementById('toast');
             const content = document.getElementById('toast-content');
