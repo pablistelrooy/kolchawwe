@@ -155,6 +155,43 @@ app.listen(PORT, () => {
 });
 
 
+
+//  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+// Ruta para registrar una nueva venta
+app.post('/api/registrar-venta', async (req, res) => {
+    const { cliente, total, productos, telefono, direccion } = req.body;
+    
+    try {
+        const query = `
+            INSERT INTO ventas (cliente, total, productos, telefono, direccion, fecha) 
+            VALUES ($1, $2, $3, $4, $5, NOW())
+        `;
+        // Asegúrate de que los nombres de las columnas coincidan con tu BD
+        await pool.query(query, [
+            cliente, 
+            total, 
+            JSON.stringify(productos), // Convertimos el carrito a texto JSON
+            telefono, 
+            direccion
+        ]);
+        
+        res.status(200).json({ success: true, message: "Venta registrada correctamente" });
+    } catch (err) {
+        console.error("Error al registrar venta:", err);
+        res.status(500).json({ success: false, message: "Error interno al guardar venta" });
+    }
+});
+
+
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+
+
+
+
 app.get('/api/clientes', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM clientes ORDER BY id DESC');
